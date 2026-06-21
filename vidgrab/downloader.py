@@ -56,6 +56,7 @@ class DownloadConfig:
     force: bool = False
     workers: int = 3
 
+
 _UNAVAILABLE_PHRASES = (
     "video unavailable",
     "private video",
