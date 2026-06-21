@@ -6,6 +6,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Version](https://img.shields.io/badge/version-0.2.0-orange)
 [![Lint](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml)
+[![CodeQL](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml)
+![Last commit](https://img.shields.io/github/last-commit/gsjonio/video_grabber)
 
 Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualidade técnica disponível** — vídeo + áudio em streams separados (DASH), mesclados sem reencode. Pensada para uso como material bruto em edição de vídeo.
 
