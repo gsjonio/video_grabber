@@ -1,0 +1,4 @@
+default: true
+MD013: false  # line-length — URLs longas são inevitáveis
+MD024: false  # no-duplicate-heading — Windows/macOS/Linux aparecem em múltiplos <details>
+MD033: false  # no-inline-html — necessário para <details>/<summary>

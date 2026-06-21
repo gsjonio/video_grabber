@@ -28,3 +28,6 @@ jobs:
 
       - name: Pylint
         run: poetry run pylint vidgrab/
+
+      - name: Markdownlint
+        run: npx --yes markdownlint-cli2 "**/*.md" "#node_modules"

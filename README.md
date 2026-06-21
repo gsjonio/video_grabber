@@ -25,7 +25,7 @@ Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualida
 ### Dependências externas
 
 | Ferramenta | Para quê | Como instalar |
-|---|---|---|
+| --- | --- | --- |
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
 | **ffmpeg** | Mesclar streams de vídeo e áudio | Veja abaixo |
 | **yt-dlp** | Engine de download | Instalado automaticamente via Poetry |
@@ -34,22 +34,26 @@ Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualida
 <details>
 <summary>Instalando o ffmpeg</summary>
 
-**Windows**
+#### Windows
+
 ```bash
 winget install ffmpeg
 ```
 
-**macOS**
+#### macOS
+
 ```bash
 brew install ffmpeg
 ```
 
-**Linux (Debian/Ubuntu)**
+#### Linux (Debian/Ubuntu)
+
 ```bash
 sudo apt install ffmpeg
 ```
 
 Ou baixe o executável em <https://ffmpeg.org/download.html> e adicione ao `PATH`.
+
 </details>
 
 <details>
@@ -57,20 +61,24 @@ Ou baixe o executável em <https://ffmpeg.org/download.html> e adicione ao `PATH
 
 Sem o Deno, o yt-dlp usa um método alternativo que pode não enxergar todos os formatos disponíveis. Com o Deno instalado, a extração é completa.
 
-**Windows**
+#### Windows
+
 ```bash
 winget install DenoLand.Deno
 ```
 
-**macOS**
+#### macOS
+
 ```bash
 brew install deno
 ```
 
-**Linux**
+#### Linux
+
 ```bash
 curl -fsSL https://deno.land/install.sh | sh
 ```
+
 </details>
 
 ---
@@ -117,7 +125,7 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 
 Uma URL por linha. Linhas com `#` são ignoradas.
 
-```
+```text
 # Meus vídeos
 https://youtu.be/dQw4w9WgXcQ
 https://youtu.be/VIDEO_ID_2
@@ -127,7 +135,7 @@ https://youtu.be/VIDEO_ID_2
 
 ### Nomeação dos arquivos
 
-```
+```text
 {data_upload}-{slug-do-titulo}-{video_id}.{ext}
 ```
 
@@ -153,7 +161,7 @@ Com `--write-json`, um arquivo `.json` é criado ao lado do vídeo:
 ### Container e qualidade
 
 | Streams disponíveis | Container de saída |
-|---|---|
+| --- | --- |
 | H.264 + AAC | `mp4` (sem reencode) |
 | VP9 / AV1 + Opus | `mkv` (sem reencode) |
 
@@ -164,7 +172,7 @@ O objetivo é **nunca recodificar** — apenas mesclar os streams.
 ### Referência de opções
 
 | Opção | Atalho | Descrição |
-|---|---|---|
+| --- | --- | --- |
 | `[URLS]...` | | Uma ou mais URLs do YouTube |
 | `--batch FILE` | `-b` | Arquivo `.txt` com uma URL por linha |
 | `--output DIR` | `-o` | Diretório de saída (padrão: diretório atual) |
@@ -193,7 +201,7 @@ CLI tool to download YouTube videos at the **highest technically available quali
 ### External dependencies
 
 | Tool | Purpose | How to install |
-|---|---|---|
+| --- | --- | --- |
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
 | **ffmpeg** | Merge video + audio streams | See below |
 | **yt-dlp** | Download engine | Installed automatically via Poetry |
@@ -202,22 +210,26 @@ CLI tool to download YouTube videos at the **highest technically available quali
 <details>
 <summary>Installing ffmpeg</summary>
 
-**Windows**
+#### Windows
+
 ```bash
 winget install ffmpeg
 ```
 
-**macOS**
+#### macOS
+
 ```bash
 brew install ffmpeg
 ```
 
-**Linux (Debian/Ubuntu)**
+#### Linux (Debian/Ubuntu)
+
 ```bash
 sudo apt install ffmpeg
 ```
 
 Or grab the binary from <https://ffmpeg.org/download.html> and add it to your `PATH`.
+
 </details>
 
 <details>
@@ -225,20 +237,24 @@ Or grab the binary from <https://ffmpeg.org/download.html> and add it to your `P
 
 Without Deno, yt-dlp falls back to an alternative extraction method that may not expose all available formats. With Deno, extraction is complete.
 
-**Windows**
+#### Windows
+
 ```bash
 winget install DenoLand.Deno
 ```
 
-**macOS**
+#### macOS
+
 ```bash
 brew install deno
 ```
 
-**Linux**
+#### Linux
+
 ```bash
 curl -fsSL https://deno.land/install.sh | sh
 ```
+
 </details>
 
 ---
@@ -285,7 +301,7 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 
 One URL per line. Lines starting with `#` are ignored.
 
-```
+```text
 # My videos
 https://youtu.be/dQw4w9WgXcQ
 https://youtu.be/VIDEO_ID_2
@@ -295,7 +311,7 @@ https://youtu.be/VIDEO_ID_2
 
 ### Output filename pattern
 
-```
+```text
 {upload_date}-{title-slug}-{video_id}.{ext}
 ```
 
@@ -321,7 +337,7 @@ With `--write-json`, a `.json` sidecar is saved next to each video:
 ### Container and quality
 
 | Available streams | Output container |
-|---|---|
+| --- | --- |
 | H.264 + AAC | `mp4` (no re-encode) |
 | VP9 / AV1 + Opus | `mkv` (no re-encode) |
 
@@ -332,7 +348,7 @@ The goal is to **never re-encode** — only mux the streams.
 ### Option reference
 
 | Option | Short | Description |
-|---|---|---|
+| --- | --- | --- |
 | `[URLS]...` | | One or more YouTube URLs |
 | `--batch FILE` | `-b` | `.txt` file with one URL per line |
 | `--output DIR` | `-o` | Output directory (default: current directory) |
