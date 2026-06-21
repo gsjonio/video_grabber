@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from . import __version__
+from . import config as _cfg
 from .downloader import DownloadConfig, Downloader
 from .exceptions import FfmpegNotFoundError
 from .models import DownloadResult
@@ -107,6 +108,13 @@ def download(
             help="Save a .json sidecar file with video metadata alongside each download.",
         ),
     ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run",
+            help="Show title, resolution and estimated size without downloading.",
+        ),
+    ] = False,
     version: Annotated[
         bool | None,
         typer.Option(
@@ -127,15 +135,17 @@ def download(
       vidgrab --batch urls.txt --output ~/Videos/raw
       vidgrab https://youtube.com/playlist?list=PLxxx --playlist
     """
+    file_cfg = _cfg.load()
     all_urls = _collect_urls(urls, batch)
 
     config = DownloadConfig(
-        output_dir=output_dir,
-        max_height=max_height,
+        output_dir=output_dir if output_dir != Path(".") else Path(file_cfg.get("output", ".")),
+        max_height=max_height if max_height is not None else file_cfg.get("max_height"),
         cookies_file=cookies,
         force=force,
-        workers=workers,
+        workers=workers if workers != 3 else int(file_cfg.get("workers", 3)),
         write_json=write_json,
+        dry_run=dry_run,
     )
     try:
         dl = Downloader(config)
