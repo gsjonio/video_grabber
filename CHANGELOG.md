@@ -1,5 +1,35 @@
 # Changelog
 
+## [v0.3.0] — 2026-06-21
+
+### ✨ Novas funcionalidades
+
+- **`--dry-run`** — Mostra título, resolução e tamanho estimado sem baixar nada. Ideal para inspecionar playlists grandes antes do download:
+  ```bash
+  vidgrab "https://youtube.com/playlist?list=PLxxx" --playlist --dry-run
+  ```
+- **Config file** — Salve seus defaults em `~/.config/vidgrab/config.toml` para não precisar passar as flags toda vez:
+  ```toml
+  output = "~/Videos/raw"
+  workers = 5
+  max_height = 1080
+  ```
+- **Resume de downloads interrompidos** — `continuedl` habilitado por padrão; downloads parciais são retomados automaticamente.
+
+### 🔧 Qualidade
+
+- **Type checking strict** — mypy strict habilitado com `dict[str, Any]` em todas as assinaturas que recebem dicts do yt-dlp
+- **Pipeline de CI expandida** — testes (`pytest`), cobertura (`codecov`), type check (`mypy`) e markdownlint adicionados ao workflow
+- **Pre-commit hooks** — ruff, pylint, mypy e markdownlint rodam localmente antes de cada commit
+- **38 testes unitários** cobrindo `_classify_error`, `_slugify`, `_format_selector`, `DownloadConfig`, `VideoMetadata` e helpers do CLI
+
+### 🐛 Correções
+
+- Badge de lint corrigida — `poetry install --with dev` incompatível com formato PEP 735; corrigido para `poetry install`
+- URLs de clone no README corrigidas (`vidgrab` → `video_grabber`)
+
+---
+
 ## [v0.2.0] — 2026-06-21
 
 ### ✨ Novas funcionalidades
