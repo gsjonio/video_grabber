@@ -217,14 +217,16 @@ class Downloader:
     def download(self, url: str) -> DownloadResult:
         """Download a single video URL.
 
+        Errors are captured in the returned DownloadResult, matching the
+        behaviour of download_batch — exceptions are never raised to the caller.
+
         Args:
             url: YouTube watch or shorts URL.
 
         Returns:
             DownloadResult with outcome details.
         """
-        with _make_progress() as progress:
-            return self._download_one(url, progress)
+        return self.download_batch([url])[0]
 
     def download_batch(self, urls: list[str]) -> list[DownloadResult]:
         """Download multiple URLs in parallel.
