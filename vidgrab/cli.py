@@ -119,19 +119,7 @@ def download(
       vidgrab --batch urls.txt --output ~/Videos/raw
       vidgrab https://youtube.com/playlist?list=PLxxx --playlist
     """
-    # Collect all URLs from positional args and/or batch file
-    all_urls: list[str] = list(urls or [])
-
-    if batch:
-        lines = batch.read_text(encoding="utf-8").splitlines()
-        batch_urls = [line.strip() for line in lines if line.strip() and not line.startswith("#")]
-        all_urls.extend(batch_urls)
-
-    if not all_urls:
-        _ERR_CONSOLE.print(
-            "[red]Error:[/red] provide at least one URL or use --batch <file.txt>."
-        )
-        raise typer.Exit(code=1)
+    all_urls = _collect_urls(urls, batch)
 
     config = DownloadConfig(
         output_dir=output_dir,
@@ -150,19 +138,47 @@ def download(
         all_urls = dl.expand_playlists(all_urls)
 
     results = dl.download_batch(all_urls)
+    _print_summary(results)
 
-    # Summary table
+
+def _collect_urls(positional: list[str] | None, batch_file: Path | None) -> list[str]:
+    """Merge positional URL args and batch file into one deduplicated list.
+
+    Raises:
+        typer.Exit: If no URLs are found.
+    """
+    all_urls: list[str] = list(positional or [])
+
+    if batch_file:
+        lines = batch_file.read_text(encoding="utf-8").splitlines()
+        all_urls += [
+            line.strip()
+            for line in lines
+            if line.strip() and not line.startswith("#")
+        ]
+
+    if not all_urls:
+        _ERR_CONSOLE.print(
+            "[red]Error:[/red] provide at least one URL or use --batch <file.txt>."
+        )
+        raise typer.Exit(code=1)
+
+    return all_urls
+
+
+def _print_summary(results: list) -> None:
+    """Render the download summary table and list any failed URLs."""
     success = [r for r in results if r.success and not r.skipped]
     skipped = [r for r in results if r.skipped]
-    failed = [r for r in results if not r.success]
+    failed  = [r for r in results if not r.success]
 
     _CONSOLE.print()
     table = Table(title="Summary", show_header=True, header_style="bold")
     table.add_column("Status", style="bold", width=10)
     table.add_column("Count", justify="right")
     table.add_row("[green]Downloaded[/green]", str(len(success)))
-    table.add_row("[yellow]Skipped[/yellow]", str(len(skipped)))
-    table.add_row("[red]Failed[/red]", str(len(failed)))
+    table.add_row("[yellow]Skipped[/yellow]",  str(len(skipped)))
+    table.add_row("[red]Failed[/red]",          str(len(failed)))
     _CONSOLE.print(table)
 
     if failed:
