@@ -45,6 +45,10 @@ _UNAVAILABLE_PHRASES = (
 _GEO_PHRASES = ("not available in your country", "geo", "region")
 _AGE_PHRASES = ("age-restricted", "age restricted", "sign in to confirm your age")
 
+_VIDEO_ID_RE: re.Pattern[str] = re.compile(
+    r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})"
+)
+
 
 def _slugify(text: str, max_length: int = 80) -> str:
     text = text.lower()
@@ -347,7 +351,7 @@ class Downloader:
         return self.output_dir / f"{upload_date}-{title}-{video_id}.{ext}"
 
     def _find_existing(self, url: str) -> Path | None:
-        video_id_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", url)
+        video_id_match = _VIDEO_ID_RE.search(url)
         if not video_id_match:
             return None
         video_id = video_id_match.group(1)
