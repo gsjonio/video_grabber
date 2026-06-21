@@ -7,10 +7,10 @@ import json
 import re
 import shutil
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 import yt_dlp
 from rich.console import Console
@@ -248,20 +248,22 @@ class Downloader:
         """
         result_map: dict[str, DownloadResult] = {}
 
-        with _make_progress() as progress:
-            with ThreadPoolExecutor(max_workers=self._config.workers) as executor:
-                future_to_url = {
-                    executor.submit(self._download_one, url, progress): url
-                    for url in urls
-                }
-                for future in as_completed(future_to_url):
-                    url = future_to_url[future]
-                    try:
-                        result = future.result()
-                    except VidGrabError as exc:
-                        _CONSOLE.print(f"  [red]✗[/red] {exc}")
-                        result = DownloadResult(url=url, success=False, error=str(exc))
-                    result_map[url] = result
+        with (
+            _make_progress() as progress,
+            ThreadPoolExecutor(max_workers=self._config.workers) as executor,
+        ):
+            future_to_url = {
+                executor.submit(self._download_one, url, progress): url
+                for url in urls
+            }
+            for future in as_completed(future_to_url):
+                url = future_to_url[future]
+                try:
+                    result = future.result()
+                except VidGrabError as exc:
+                    _CONSOLE.print(f"  [red]✗[/red] {exc}")
+                    result = DownloadResult(url=url, success=False, error=str(exc))
+                result_map[url] = result
 
         # Print results in original input order
         for url in urls:

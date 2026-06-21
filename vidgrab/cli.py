@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -32,11 +32,11 @@ def _version_callback(value: bool) -> None:
 @app.command()
 def download(
     urls: Annotated[
-        Optional[list[str]],
+        list[str] | None,
         typer.Argument(help="One or more YouTube URLs to download."),
     ] = None,
     batch: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--batch",
             "-b",
@@ -56,7 +56,7 @@ def download(
         ),
     ] = Path("."),
     max_height: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(
             "--max-height",
             help="Limit video resolution (e.g. 1080 for 1080p). Omit for maximum.",
@@ -80,7 +80,7 @@ def download(
         ),
     ] = False,
     cookies: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--cookies",
             help="Path to a Netscape cookies file for age-restricted content.",
@@ -108,7 +108,7 @@ def download(
         ),
     ] = False,
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version",
             "-V",
