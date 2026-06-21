@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.3.2-orange)
+![Version](https://img.shields.io/badge/version-0.4.0-orange)
 [![Lint](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml)
 [![CodeQL](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml)
 [![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
@@ -237,7 +237,9 @@ O objetivo é **nunca recodificar** — apenas mesclar os streams.
 | `--write-json` | | Salvar metadados em `.json` ao lado do vídeo |
 | `--workers INT` | `-w` | Downloads paralelos (padrão: `3`, máx: `8`) |
 | `--dry-run` | | Mostrar o que seria baixado, sem baixar |
+| `--quiet` | `-q` | Suprimir toda saída exceto erros (útil para scripts) |
 | `--version` | `-V` | Exibir versão |
+| `--install-completion` | | Instalar autocomplete no shell atual |
 | `--help` | | Exibir ajuda |
 
 ---
@@ -503,7 +505,9 @@ The goal is to **never re-encode** — only mux the streams.
 | `--write-json` | | Save metadata as a `.json` sidecar next to the video |
 | `--workers INT` | `-w` | Parallel downloads (default: `3`, max: `8`) |
 | `--dry-run` | | Show what would be downloaded without downloading |
+| `--quiet` | `-q` | Suppress all output except errors (useful for scripting) |
 | `--version` | `-V` | Show version and exit |
+| `--install-completion` | | Install shell autocomplete for the current shell |
 | `--help` | | Show help |
 
 ---

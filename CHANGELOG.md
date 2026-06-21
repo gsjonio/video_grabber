@@ -1,5 +1,26 @@
 # Changelog
 
+## [v0.4.0] — 2026-06-21
+
+### ✨ Novas funcionalidades / New features
+
+- **`--quiet` / `-q`** — Suprime toda saída exceto erros. Ideal para uso em scripts e pipelines. /
+  Suppresses all output except errors. Ideal for scripting and pipelines.
+
+  ```bash
+  vidgrab https://youtu.be/dQw4w9WgXcQ --quiet && echo "done"
+  ```
+
+- **Shell completion** — Autocompletar para bash, zsh e fish via Typer.
+  Instale com o comando abaixo e reabra o terminal. /
+  Autocomplete for bash, zsh and fish via Typer. Run the command below and reopen your terminal.
+
+  ```bash
+  vidgrab --install-completion
+  ```
+
+---
+
 ## [v0.3.2] — 2026-06-21
 
 ### 🐛 Correções / Bug fixes
