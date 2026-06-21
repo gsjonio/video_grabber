@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.4.1] — 2026-06-21
+
+### 📚 Documentação / Documentation
+
+- `CONTRIBUTING.md` adicionado com guia de setup, convenção de commits e processo de PR /
+  `CONTRIBUTING.md` added with setup guide, commit convention and PR process
+- Issue templates criados para bug report e feature request /
+  Issue templates created for bug report and feature request
+
+---
+
 ## [v0.4.0] — 2026-06-21
 
 ### ✨ Novas funcionalidades / New features
