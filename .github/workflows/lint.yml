@@ -29,5 +29,8 @@ jobs:
       - name: Pylint
         run: poetry run pylint vidgrab/
 
+      - name: Mypy
+        run: poetry run mypy vidgrab/ --ignore-missing-imports --strict
+
       - name: Markdownlint
         run: npx --yes markdownlint-cli2 "**/*.md" "#node_modules"
