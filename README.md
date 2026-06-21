@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.3.1-orange)
+![Version](https://img.shields.io/badge/version-0.3.2-orange)
 [![Lint](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml)
 [![CodeQL](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml)
 [![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
@@ -229,7 +229,7 @@ O objetivo é **nunca recodificar** — apenas mesclar os streams.
 | --- | --- | --- |
 | `[URLS]...` | | Uma ou mais URLs do YouTube |
 | `--batch FILE` | `-b` | Arquivo `.txt` com uma URL por linha |
-| `--output DIR` | `-o` | Diretório de saída (padrão: diretório atual) |
+| `--output DIR` | `-o` | Diretório de saída (padrão: `~/Downloads`) |
 | `--max-height INT` | | Limitar resolução vertical (ex.: `1080`) |
 | `--playlist` | | Tratar URLs como playlists |
 | `--force` | `-f` | Re-download mesmo se o arquivo já existe |
@@ -495,7 +495,7 @@ The goal is to **never re-encode** — only mux the streams.
 | --- | --- | --- |
 | `[URLS]...` | | One or more YouTube URLs |
 | `--batch FILE` | `-b` | `.txt` file with one URL per line |
-| `--output DIR` | `-o` | Output directory (default: current directory) |
+| `--output DIR` | `-o` | Output directory (default: `~/Downloads`) |
 | `--max-height INT` | | Cap vertical resolution (e.g. `1080`) |
 | `--playlist` | | Treat URLs as playlists |
 | `--force` | `-f` | Re-download even if the file already exists |

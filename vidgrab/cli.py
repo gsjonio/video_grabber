@@ -49,13 +49,13 @@ def download(
         ),
     ] = None,
     output_dir: Annotated[
-        Path,
+        Path | None,
         typer.Option(
             "--output",
             "-o",
-            help="Directory to save downloaded files.",
+            help="Directory to save downloaded files (default: ~/Downloads).",
         ),
-    ] = Path("."),
+    ] = None,
     max_height: Annotated[
         int | None,
         typer.Option(
@@ -132,14 +132,15 @@ def download(
     Examples:
       vidgrab https://youtu.be/dQw4w9WgXcQ
       vidgrab https://youtu.be/dQw4w9WgXcQ --max-height 1080
-      vidgrab --batch urls.txt --output ~/Videos/raw
+      vidgrab --batch urls.txt --output ~/Videos/raw  (default: ~/Downloads)
       vidgrab https://youtube.com/playlist?list=PLxxx --playlist
     """
     file_cfg = _cfg.load()
     all_urls = _collect_urls(urls, batch)
 
+    _default_output = Path(file_cfg.get("output", Path.home() / "Downloads"))
     config = DownloadConfig(
-        output_dir=output_dir if output_dir != Path(".") else Path(file_cfg.get("output", ".")),
+        output_dir=output_dir if output_dir is not None else _default_output,
         max_height=max_height if max_height is not None else file_cfg.get("max_height"),
         cookies_file=cookies,
         force=force,

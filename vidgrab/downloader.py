@@ -51,7 +51,7 @@ class DownloadConfig:
         workers: Number of parallel downloads.
     """
 
-    output_dir: Path = field(default_factory=lambda: Path("."))
+    output_dir: Path = field(default_factory=lambda: Path.home() / "Downloads")
     max_height: int | None = None
     cookies_file: Path | None = None
     force: bool = False

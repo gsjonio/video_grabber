@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.3.2] — 2026-06-21
+
+### 🐛 Correções / Bug fixes
+
+- Diretório de saída padrão alterado de `.` (diretório atual) para `~/Downloads` (pasta
+  de Downloads do sistema). Aplica-se tanto ao CLI quanto ao `DownloadConfig` diretamente. /
+  Default output directory changed from `.` (current directory) to `~/Downloads` (system
+  Downloads folder). Applies to both the CLI and `DownloadConfig` used directly.
+
+---
+
 ## [v0.3.1] — 2026-06-21
 
 ### 📚 Documentação / Documentation

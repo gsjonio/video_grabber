@@ -95,7 +95,7 @@ class TestFormatSelector:
 class TestDownloadConfig:
     def test_defaults(self) -> None:
         cfg = DownloadConfig()
-        assert cfg.output_dir == Path(".")
+        assert cfg.output_dir == Path.home() / "Downloads"
         assert cfg.max_height is None
         assert cfg.cookies_file is None
         assert cfg.force is False
