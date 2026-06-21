@@ -12,6 +12,7 @@ from rich.table import Table
 from . import __version__
 from .downloader import DownloadConfig, Downloader
 from .exceptions import FfmpegNotFoundError
+from .models import DownloadResult
 
 app = typer.Typer(
     name="vidgrab",
@@ -138,11 +139,12 @@ def download(
         all_urls = dl.expand_playlists(all_urls)
 
     results = dl.download_batch(all_urls)
-    _print_summary(results)
+    if not _print_summary(results):
+        raise typer.Exit(code=1)
 
 
 def _collect_urls(positional: list[str] | None, batch_file: Path | None) -> list[str]:
-    """Merge positional URL args and batch file into one deduplicated list.
+    """Merge positional URL args and batch file into a single list.
 
     Raises:
         typer.Exit: If no URLs are found.
@@ -166,8 +168,12 @@ def _collect_urls(positional: list[str] | None, batch_file: Path | None) -> list
     return all_urls
 
 
-def _print_summary(results: list) -> None:
-    """Render the download summary table and list any failed URLs."""
+def _print_summary(results: list[DownloadResult]) -> bool:
+    """Render the download summary table and list any failed URLs.
+
+    Returns:
+        True if all downloads succeeded or were skipped, False if any failed.
+    """
     success = [r for r in results if r.success and not r.skipped]
     skipped = [r for r in results if r.skipped]
     failed  = [r for r in results if not r.success]
@@ -187,7 +193,8 @@ def _print_summary(results: list) -> None:
             _CONSOLE.print(f"  • {r.url}")
             if r.error:
                 _CONSOLE.print(f"    [dim]{r.error}[/dim]")
-        raise typer.Exit(code=1)
+
+    return not failed
 
 
 def main() -> None:
