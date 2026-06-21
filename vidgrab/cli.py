@@ -18,7 +18,7 @@ from .models import DownloadResult
 app = typer.Typer(
     name="vidgrab",
     help="Download YouTube videos at maximum quality for video editing.",
-    add_completion=False,
+    add_completion=True,
 )
 _CONSOLE: Console = Console()
 _ERR_CONSOLE: Console = Console(stderr=True)
@@ -115,6 +115,14 @@ def download(
             help="Show title, resolution and estimated size without downloading.",
         ),
     ] = False,
+    quiet: Annotated[
+        bool,
+        typer.Option(
+            "--quiet",
+            "-q",
+            help="Suppress all output except errors. Useful for scripting.",
+        ),
+    ] = False,
     version: Annotated[
         bool | None,
         typer.Option(
@@ -147,6 +155,7 @@ def download(
         workers=workers if workers != 3 else int(file_cfg.get("workers", 3)),
         write_json=write_json,
         dry_run=dry_run,
+        quiet=quiet,
     )
     try:
         dl = Downloader(config)
@@ -158,7 +167,7 @@ def download(
         all_urls = dl.expand_playlists(all_urls)
 
     results = dl.download_batch(all_urls)
-    if not _print_summary(results):
+    if not _print_summary(results, quiet=quiet):
         raise typer.Exit(code=1)
 
 
@@ -187,15 +196,19 @@ def _collect_urls(positional: list[str] | None, batch_file: Path | None) -> list
     return all_urls
 
 
-def _print_summary(results: list[DownloadResult]) -> bool:
+def _print_summary(results: list[DownloadResult], *, quiet: bool = False) -> bool:
     """Render the download summary table and list any failed URLs.
 
     Returns:
         True if all downloads succeeded or were skipped, False if any failed.
     """
+    failed = [r for r in results if not r.success]
+
+    if quiet:
+        return not failed
+
     success = [r for r in results if r.success and not r.skipped]
     skipped = [r for r in results if r.skipped]
-    failed  = [r for r in results if not r.success]
 
     _CONSOLE.print()
     table = Table(title="Summary", show_header=True, header_style="bold")

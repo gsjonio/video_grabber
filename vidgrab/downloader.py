@@ -58,6 +58,7 @@ class DownloadConfig:
     workers: int = 3
     write_json: bool = False
     dry_run: bool = False
+    quiet: bool = False
 
 
 _MAX_RETRY_ATTEMPTS: int = 5
@@ -154,7 +155,7 @@ def _run_ydl(url: str, opts: dict[str, Any]) -> dict[str, Any]:
         raise DownloadError(url, reason=msg) from exc
 
 
-def _make_progress() -> Progress:
+def _make_progress(console: Console) -> Progress:
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -162,7 +163,7 @@ def _make_progress() -> Progress:
         DownloadColumn(),
         TransferSpeedColumn(),
         TimeRemainingColumn(),
-        console=_CONSOLE,
+        console=console,
         transient=True,
     )
 
@@ -177,6 +178,7 @@ class Downloader:
     def __init__(self, config: DownloadConfig) -> None:
         _check_ffmpeg()
         self._config = config
+        self._con: Console = Console(quiet=config.quiet, stderr=True)
         self._config.output_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
@@ -208,7 +210,7 @@ class Downloader:
                 with yt_dlp.YoutubeDL(opts) as ydl:
                     info = ydl.extract_info(url, download=False)
             except Exception as exc:  # pylint: disable=broad-exception-caught
-                _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
+                self._con.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
                 expanded.append(url)
                 continue
 
@@ -249,13 +251,13 @@ class Downloader:
             List of DownloadResult objects in the same order as *urls*.
         """
         if self._config.dry_run:
-            _CONSOLE.print("[dim]Dry run — nothing will be downloaded.[/dim]\n")
+            self._con.print("[dim]Dry run — nothing will be downloaded.[/dim]\n")
             return [self._inspect_one(url) for url in urls]
 
         result_map: dict[str, DownloadResult] = {}
 
         with (
-            _make_progress() as progress,
+            _make_progress(self._con) as progress,
             ThreadPoolExecutor(max_workers=self._config.workers) as executor,
         ):
             future_to_url = {
@@ -267,7 +269,7 @@ class Downloader:
                 try:
                     result = future.result()
                 except VidGrabError as exc:
-                    _CONSOLE.print(f"  [red]✗[/red] {exc}")
+                    self._con.print(f"  [red]✗[/red] {exc}")
                     result = DownloadResult(url=url, success=False, error=str(exc))
                 result_map[url] = result
 
@@ -275,11 +277,11 @@ class Downloader:
         for url in urls:
             result = result_map[url]
             if result.skipped:
-                _CONSOLE.print(f"[yellow]↷[/yellow] Already exists: {url}")
+                self._con.print(f"[yellow]↷[/yellow] Already exists: {url}")
             elif result.success and result.output_path:
-                _CONSOLE.print(f"[green]✓[/green] {result.output_path.name}")
+                self._con.print(f"[green]✓[/green] {result.output_path.name}")
             else:
-                _CONSOLE.print(f"[red]✗[/red] {url}")
+                self._con.print(f"[red]✗[/red] {url}")
 
         return [result_map[url] for url in urls]
 
@@ -309,7 +311,7 @@ class Downloader:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = cast(dict[str, Any], ydl.extract_info(url, download=False))
         except yt_dlp.utils.DownloadError as exc:
-            _CONSOLE.print(f"[red]✗[/red] {url}  [dim]{exc}[/dim]")
+            self._con.print(f"[red]✗[/red] {url}  [dim]{exc}[/dim]")
             return DownloadResult(url=url, success=False, error=str(exc))
 
         title = info.get("title", url)
@@ -320,7 +322,7 @@ class Downloader:
         resolution = f"{height}p" if height else "?"
         size_str = f"{filesize / 1_048_576:.1f} MB" if filesize else "size unknown"
 
-        _CONSOLE.print(
+        self._con.print(
             f"[cyan]↳[/cyan] [bold]{title}[/bold]  [dim]{resolution} · {size_str}[/dim]"
         )
         return DownloadResult(url=url, success=True)
@@ -368,7 +370,7 @@ class Downloader:
         final_path = self._resolve_output_path(info)
 
         if not _is_creative_commons(info):
-            _CONSOLE.print(
+            self._con.print(
                 f"[yellow]⚠  Not Creative Commons:[/yellow] {metadata.title}"
             )
 
@@ -407,7 +409,7 @@ class Downloader:
                 if _classify_error(exc.reason) is not _ErrorKind.RATE_LIMITED or is_last:
                     raise
                 delay = _RETRY_BASE_DELAY * (2**attempt)
-                _CONSOLE.print(
+                self._con.print(
                     f"  [yellow]Rate limited — retrying in {delay:.0f}s "
                     f"({attempt + 1}/{_MAX_RETRY_ATTEMPTS})[/yellow]"
                 )
