@@ -399,8 +399,10 @@ class Downloader:
         if not video_id_match:
             return None
         video_id = video_id_match.group(1)
-        matches = list(self._config.output_dir.glob(f"*{video_id}*"))
-        matches = [p for p in matches if p.suffix != ".json"]
+        matches = [
+            p for p in self._config.output_dir.glob(f"*{video_id}*")
+            if p.suffix != ".json"
+        ]
         return matches[0] if matches else None
 
     @staticmethod
