@@ -4,9 +4,10 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.2.0-orange)
+![Version](https://img.shields.io/badge/version-0.3.0-orange)
 [![Lint](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml)
 [![CodeQL](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml)
+[![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
 ![Last commit](https://img.shields.io/github/last-commit/gsjonio/video_grabber)
 
 Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualidade técnica disponível** — vídeo + áudio em streams separados (DASH), mesclados sem reencode. Pensada para uso como material bruto em edição de vídeo.
@@ -86,8 +87,8 @@ curl -fsSL https://deno.land/install.sh | sh
 ### Instalação
 
 ```bash
-git clone https://github.com/gsjonio/vidgrab.git
-cd vidgrab
+git clone https://github.com/gsjonio/video_grabber.git
+cd video_grabber
 poetry install
 ```
 
@@ -262,8 +263,8 @@ curl -fsSL https://deno.land/install.sh | sh
 ### Installation
 
 ```bash
-git clone https://github.com/gsjonio/vidgrab.git
-cd vidgrab
+git clone https://github.com/gsjonio/video_grabber.git
+cd video_grabber
 poetry install
 ```
 

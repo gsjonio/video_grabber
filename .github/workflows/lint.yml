@@ -21,7 +21,16 @@ jobs:
         run: pip install poetry
 
       - name: Install dependencies
-        run: poetry install --with dev
+        run: poetry install
+
+      - name: Tests
+        run: poetry run pytest
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
 
       - name: Ruff
         run: poetry run ruff check vidgrab/
