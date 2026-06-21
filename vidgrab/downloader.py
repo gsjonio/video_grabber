@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import enum
 import json
 import re
 import shutil
@@ -44,6 +45,7 @@ _UNAVAILABLE_PHRASES = (
 )
 _GEO_PHRASES = ("not available in your country", "geo", "region")
 _AGE_PHRASES = ("age-restricted", "age restricted", "sign in to confirm your age")
+_RATE_PHRASES = ("429", "rate", "too many", "http error 5")
 
 _VIDEO_ID_RE: re.Pattern[str] = re.compile(
     r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})"
@@ -68,15 +70,25 @@ def _format_selector(max_height: int | None) -> str:
     return "bestvideo+bestaudio/best"
 
 
-def _classify_error(msg: str) -> str:
+class _ErrorKind(enum.Enum):
+    UNAVAILABLE = enum.auto()
+    GEO = enum.auto()
+    AGE = enum.auto()
+    RATE_LIMITED = enum.auto()
+    GENERIC = enum.auto()
+
+
+def _classify_error(msg: str) -> _ErrorKind:
     lower = msg.lower()
     if any(p in lower for p in _UNAVAILABLE_PHRASES):
-        return "unavailable"
+        return _ErrorKind.UNAVAILABLE
     if any(p in lower for p in _GEO_PHRASES):
-        return "geo"
+        return _ErrorKind.GEO
     if any(p in lower for p in _AGE_PHRASES):
-        return "age"
-    return "generic"
+        return _ErrorKind.AGE
+    if any(p in lower for p in _RATE_PHRASES):
+        return _ErrorKind.RATE_LIMITED
+    return _ErrorKind.GENERIC
 
 
 def _check_ffmpeg() -> None:
@@ -307,18 +319,16 @@ class Downloader:
 
             except yt_dlp.utils.DownloadError as exc:
                 msg = str(exc)
-                category = _classify_error(msg)
+                kind = _classify_error(msg)
 
-                if category == "unavailable":
+                if kind is _ErrorKind.UNAVAILABLE:
                     raise VideoUnavailableError(url, reason=msg) from exc
-                if category == "geo":
+                if kind is _ErrorKind.GEO:
                     raise GeoBlockedError(url) from exc
-                if category == "age":
+                if kind is _ErrorKind.AGE:
                     raise AgeRestrictedError(url) from exc
 
-                if attempt < max_attempts and any(
-                    p in msg.lower() for p in ("429", "rate", "too many", "http error 5")
-                ):
+                if kind is _ErrorKind.RATE_LIMITED and attempt < max_attempts:
                     delay = base_delay * (2**attempt)
                     _CONSOLE.print(
                         f"  [yellow]Rate limited — retrying in {delay:.0f}s "
