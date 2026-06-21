@@ -57,17 +57,6 @@ class DownloadConfig:
     workers: int = 3
 
 
-_UNAVAILABLE_PHRASES = (
-    "video unavailable",
-    "private video",
-    "has been removed",
-    "no longer available",
-    "deleted",
-)
-_GEO_PHRASES = ("not available in your country", "geo", "region")
-_AGE_PHRASES = ("age-restricted", "age restricted", "sign in to confirm your age")
-_RATE_PHRASES = ("429", "rate", "too many", "http error 5")
-
 _MAX_RETRY_ATTEMPTS: int = 5
 _RETRY_BASE_DELAY: float = 2.0
 
@@ -102,16 +91,19 @@ class _ErrorKind(enum.Enum):
     GENERIC = enum.auto()
 
 
+_ERROR_PATTERNS: tuple[tuple[_ErrorKind, tuple[str, ...]], ...] = (
+    (_ErrorKind.UNAVAILABLE, ("video unavailable", "private video", "has been removed", "no longer available", "deleted")),
+    (_ErrorKind.GEO,         ("not available in your country", "geo", "region")),
+    (_ErrorKind.AGE,         ("age-restricted", "age restricted", "sign in to confirm your age")),
+    (_ErrorKind.RATE_LIMITED, ("429", "rate", "too many", "http error 5")),
+)
+
+
 def _classify_error(msg: str) -> _ErrorKind:
     lower = msg.lower()
-    if any(p in lower for p in _UNAVAILABLE_PHRASES):
-        return _ErrorKind.UNAVAILABLE
-    if any(p in lower for p in _GEO_PHRASES):
-        return _ErrorKind.GEO
-    if any(p in lower for p in _AGE_PHRASES):
-        return _ErrorKind.AGE
-    if any(p in lower for p in _RATE_PHRASES):
-        return _ErrorKind.RATE_LIMITED
+    for kind, phrases in _ERROR_PATTERNS:
+        if any(p in lower for p in phrases):
+            return kind
     return _ErrorKind.GENERIC
 
 
