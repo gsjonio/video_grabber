@@ -119,7 +119,11 @@ https://youtu.be/VIDEO_ID_2
 
 Exemplo: `20240315-tutorial-de-edicao-de-video-dQw4w9WgXcQ.mp4`
 
-Um arquivo `.json` de metadados é criado ao lado de cada vídeo:
+Use `--write-json` para salvar um arquivo `.json` de metadados ao lado de cada vídeo:
+
+```bash
+vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
+```
 
 ```json
 {
@@ -156,6 +160,7 @@ Opções:
   --playlist              Tratar URLs como playlists
   -f, --force             Reforçar download mesmo se arquivo existe
   --cookies FILE          Arquivo de cookies (Netscape format)
+  --write-json            Salvar metadados em .json ao lado do vídeo
   -V, --version           Exibir versão
   --help                  Exibir ajuda
 ```
@@ -254,7 +259,11 @@ https://youtu.be/VIDEO_ID_2
 
 Example: `20240315-tutorial-de-edicao-de-video-dQw4w9WgXcQ.mp4`
 
-A `.json` sidecar file is written next to each video:
+Use `--write-json` to save a `.json` sidecar file next to each video:
+
+```bash
+vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
+```
 
 ```json
 {
@@ -291,6 +300,7 @@ Options:
   --playlist              Treat URLs as playlists
   -f, --force             Re-download even if file exists
   --cookies FILE          Cookies file (Netscape format)
+  --write-json            Save metadata as a .json sidecar next to the video
   -V, --version           Show version and exit
   --help                  Show help
 ```
