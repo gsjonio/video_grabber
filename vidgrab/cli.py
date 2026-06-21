@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from . import __version__
-from .downloader import Downloader
+from .downloader import DownloadConfig, Downloader
 from .exceptions import FfmpegNotFoundError
 
 app = typer.Typer(
@@ -133,14 +133,15 @@ def download(
         )
         raise typer.Exit(code=1)
 
+    config = DownloadConfig(
+        output_dir=output_dir,
+        max_height=max_height,
+        cookies_file=cookies,
+        force=force,
+        workers=workers,
+    )
     try:
-        dl = Downloader(
-            output_dir=output_dir,
-            max_height=max_height,
-            cookies_file=cookies,
-            force=force,
-            workers=workers,
-        )
+        dl = Downloader(config)
     except FfmpegNotFoundError as exc:
         _ERR_CONSOLE.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(code=1) from exc

@@ -8,6 +8,7 @@ import re
 import shutil
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
@@ -35,6 +36,25 @@ from .exceptions import (
 from .models import DownloadResult, VideoMetadata
 
 _CONSOLE: Console = Console(stderr=True)
+
+
+@dataclass(frozen=True)
+class DownloadConfig:
+    """Immutable configuration for a Downloader session.
+
+    Attributes:
+        output_dir: Directory where downloaded files are saved.
+        max_height: Optional resolution cap in pixels (e.g. 1080).
+        cookies_file: Path to a Netscape cookies file for age-restricted content.
+        force: Re-download even when the output file already exists.
+        workers: Number of parallel downloads.
+    """
+
+    output_dir: Path = field(default_factory=lambda: Path("."))
+    max_height: int | None = None
+    cookies_file: Path | None = None
+    force: bool = False
+    workers: int = 3
 
 _UNAVAILABLE_PHRASES = (
     "video unavailable",
@@ -185,31 +205,16 @@ def _make_progress() -> Progress:
 
 
 class Downloader:
-    """High-level download orchestrator.
+    """Orchestrates yt-dlp downloads with parallel execution and retry logic.
 
     Args:
-        output_dir: Directory where downloaded files are saved.
-        max_height: Optional resolution cap in pixels.
-        cookies_file: Path to a Netscape cookies file.
-        force: If True, re-download even when the output file already exists.
-        workers: Number of parallel downloads for batch operations.
+        config: Immutable session configuration.
     """
 
-    def __init__(
-        self,
-        output_dir: Path,
-        max_height: int | None = None,
-        cookies_file: Path | None = None,
-        force: bool = False,
-        workers: int = 3,
-    ) -> None:
+    def __init__(self, config: DownloadConfig) -> None:
         _check_ffmpeg()
-        self.output_dir = output_dir
-        self.max_height = max_height
-        self.cookies_file = cookies_file
-        self.force = force
-        self.workers = workers
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._config = config
+        self._config.output_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # Public API
@@ -231,8 +236,8 @@ class Downloader:
             "extract_flat": True,
             "noplaylist": False,
         }
-        if self.cookies_file:
-            opts["cookiefile"] = str(self.cookies_file)
+        if self._config.cookies_file:
+            opts["cookiefile"] = str(self._config.cookies_file)
 
         expanded: list[str] = []
         for url in urls:
@@ -281,7 +286,7 @@ class Downloader:
         result_map: dict[str, DownloadResult] = {}
 
         with _make_progress() as progress:
-            with ThreadPoolExecutor(max_workers=self.workers) as executor:
+            with ThreadPoolExecutor(max_workers=self._config.workers) as executor:
                 future_to_url = {
                     executor.submit(self._download_one, url, progress): url
                     for url in urls
@@ -324,7 +329,7 @@ class Downloader:
         Raises:
             VidGrabError: On any typed download failure.
         """
-        if not self.force:
+        if not self._config.force:
             existing = self._find_existing(url)
             if existing:
                 return DownloadResult(url=url, success=True, output_path=existing, skipped=True)
@@ -374,7 +379,7 @@ class Downloader:
         Raises:
             VidGrabError: Typed error matching the failure category.
         """
-        opts = _build_ydl_opts(self.output_dir, self.max_height, self.cookies_file, hook)
+        opts = _build_ydl_opts(self._config.output_dir, self._config.max_height, self._config.cookies_file, hook)
 
         for attempt in range(_MAX_RETRY_ATTEMPTS):
             try:
@@ -401,23 +406,23 @@ class Downloader:
 
         video_id = info.get("id", "")
         ext = info.get("ext", "mp4")
-        matches = list(self.output_dir.glob(f"*{video_id}*.{ext}"))
+        matches = list(self._config.output_dir.glob(f"*{video_id}*.{ext}"))
         if matches:
             return matches[0]
-        matches = list(self.output_dir.glob(f"*{video_id}*"))
+        matches = list(self._config.output_dir.glob(f"*{video_id}*"))
         if matches:
             return matches[0]
 
         upload_date = info.get("upload_date", "19700101")
         title = _slugify(info.get("title", "untitled"))
-        return self.output_dir / f"{upload_date}-{title}-{video_id}.{ext}"
+        return self._config.output_dir / f"{upload_date}-{title}-{video_id}.{ext}"
 
     def _find_existing(self, url: str) -> Path | None:
         video_id_match = _VIDEO_ID_RE.search(url)
         if not video_id_match:
             return None
         video_id = video_id_match.group(1)
-        matches = list(self.output_dir.glob(f"*{video_id}*"))
+        matches = list(self._config.output_dir.glob(f"*{video_id}*"))
         matches = [p for p in matches if p.suffix != ".json"]
         return matches[0] if matches else None
 
