@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -29,7 +30,7 @@ class VideoMetadata:
     description: str = ""
     tags: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dict suitable for JSON serialisation."""
         return {
             "video_id": self.video_id,
@@ -43,7 +44,7 @@ class VideoMetadata:
         }
 
     @classmethod
-    def from_yt_dlp_info(cls, info: dict) -> "VideoMetadata":
+    def from_yt_dlp_info(cls, info: dict[str, Any]) -> "VideoMetadata":
         """Build a VideoMetadata from the raw info dict returned by yt-dlp.
 
         Args:

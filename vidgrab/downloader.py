@@ -11,6 +11,7 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, cast
 
 import yt_dlp
 from rich.console import Console
@@ -118,12 +119,12 @@ def _check_ffmpeg() -> None:
 
 
 
-def _is_creative_commons(info: dict) -> bool:
+def _is_creative_commons(info: dict[str, Any]) -> bool:
     """Return True if the video is published under a Creative Commons license."""
     return "creative commons" in (info.get("license") or "").lower()
 
 
-def _run_ydl(url: str, opts: dict) -> dict:
+def _run_ydl(url: str, opts: dict[str, Any]) -> dict[str, Any]:
     """Execute a single yt-dlp extraction + download attempt.
 
     Translates yt-dlp errors into typed VidGrabErrors.
@@ -135,11 +136,11 @@ def _run_ydl(url: str, opts: dict) -> dict:
         DownloadError: Any other failure (including retryable rate-limits).
     """
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
+        with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=True)
             if info is None:
                 raise DownloadError(url, "yt-dlp returned no info")
-            return info
+            return cast(dict[str, Any], info)
     except yt_dlp.utils.DownloadError as exc:
         msg = str(exc)
         kind = _classify_error(msg)
@@ -192,7 +193,7 @@ class Downloader:
         Returns:
             Flat list of individual video URLs.
         """
-        opts: dict = {
+        opts: dict[str, Any] = {
             "quiet": True,
             "extract_flat": True,
             "noplaylist": False,
@@ -203,7 +204,7 @@ class Downloader:
         expanded: list[str] = []
         for url in urls:
             try:
-                with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
+                with yt_dlp.YoutubeDL(opts) as ydl:
                     info = ydl.extract_info(url, download=False)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
@@ -301,7 +302,7 @@ class Downloader:
 
         task_id: TaskID | None = None
 
-        def _hook(d: dict) -> None:
+        def _hook(d: dict[str, Any]) -> None:
             nonlocal task_id
             status = d.get("status")
 
@@ -338,7 +339,9 @@ class Downloader:
             metadata=metadata,
         )
 
-    def _extract_and_download(self, url: str, hook: Callable[[dict], None]) -> dict:
+    def _extract_and_download(
+        self, url: str, hook: Callable[[dict[str, Any]], None]
+    ) -> dict[str, Any]:
         """Run yt-dlp download with exponential-backoff retry on rate-limits.
 
         Args:
@@ -369,8 +372,8 @@ class Downloader:
 
         raise RuntimeError("unreachable")  # pragma: no cover
 
-    def _build_ydl_opts(self, progress_hook: Callable[[dict], None]) -> dict:
-        opts: dict = {
+    def _build_ydl_opts(self, progress_hook: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
+        opts: dict[str, Any] = {
             "format": _format_selector(self._config.max_height),
             "outtmpl": _output_template(self._config.output_dir),
             "merge_output_format": "mp4",
@@ -394,7 +397,7 @@ class Downloader:
             opts["cookiefile"] = str(self._config.cookies_file)
         return opts
 
-    def _resolve_output_path(self, info: dict) -> Path:
+    def _resolve_output_path(self, info: dict[str, Any]) -> Path:
         requested = info.get("requested_downloads")
         if requested:
             filepath = requested[0].get("filepath") or requested[0].get("filename")
