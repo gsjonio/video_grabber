@@ -100,6 +100,13 @@ def download(
             max=8,
         ),
     ] = 3,
+    write_json: Annotated[
+        bool,
+        typer.Option(
+            "--write-json",
+            help="Save a .json sidecar file with video metadata alongside each download.",
+        ),
+    ] = False,
     version: Annotated[
         Optional[bool],
         typer.Option(
@@ -128,6 +135,7 @@ def download(
         cookies_file=cookies,
         force=force,
         workers=workers,
+        write_json=write_json,
     )
     try:
         dl = Downloader(config)

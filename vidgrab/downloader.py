@@ -55,6 +55,7 @@ class DownloadConfig:
     cookies_file: Path | None = None
     force: bool = False
     workers: int = 3
+    write_json: bool = False
 
 
 _MAX_RETRY_ATTEMPTS: int = 5
@@ -311,7 +312,9 @@ class Downloader:
         info = self._extract_and_download(url, _hook)
         metadata = VideoMetadata.from_yt_dlp_info(info)
         final_path = self._resolve_output_path(info)
-        self._write_metadata_json(final_path, metadata)
+
+        if self._config.write_json:
+            self._write_metadata_json(final_path, metadata)
 
         return DownloadResult(
             url=url,
