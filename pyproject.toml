@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vidgrab"
+version = "0.1.0"
+description = "CLI tool to download YouTube videos at maximum quality for video editing"
+requires-python = ">=3.11"
+dependencies = [
+    "yt-dlp>=2024.1.1",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+]
+
+[project.scripts]
+vidgrab = "vidgrab.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vidgrab*"]
