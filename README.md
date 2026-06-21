@@ -10,7 +10,7 @@
 [![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
 ![Last commit](https://img.shields.io/github/last-commit/gsjonio/video_grabber)
 
-Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualidade técnica disponível** — vídeo + áudio em streams separados (DASH), mesclados sem reencode. Pensada para uso como material bruto em edição de vídeo.
+Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualidade técnica disponível** — vídeo + áudio em streams separados (DASH), mesclados sem reencode.
 
 ---
 
