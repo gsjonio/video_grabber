@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.3.1] — 2026-06-21
+
+### 📚 Documentação / Documentation
+
+- README expandido com diagrama de arquitetura, tabela de funcionalidades com ícones,
+  seção de qualidade de código e estrutura do projeto /
+  README expanded with architecture diagram, icon feature table,
+  code quality section and project structure
+- CHANGELOG convertido para formato bilíngue PT-BR / EN /
+  CHANGELOG converted to bilingual PT-BR / EN format
+
+### 🔧 Chore
+
+- Dependências de teste (`pytest`, `pytest-cov`, `codecov`) adicionadas à pipeline de CI /
+  Test dependencies (`pytest`, `pytest-cov`, `codecov`) added to CI pipeline
+
+---
+
 ## [v0.3.0] — 2026-06-21
 
 ### ✨ Novas funcionalidades / New features
