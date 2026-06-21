@@ -57,6 +57,7 @@ class DownloadConfig:
     force: bool = False
     workers: int = 3
     write_json: bool = False
+    dry_run: bool = False
 
 
 _MAX_RETRY_ATTEMPTS: int = 5
@@ -247,6 +248,10 @@ class Downloader:
         Returns:
             List of DownloadResult objects in the same order as *urls*.
         """
+        if self._config.dry_run:
+            _CONSOLE.print("[dim]Dry run — nothing will be downloaded.[/dim]\n")
+            return [self._inspect_one(url) for url in urls]
+
         result_map: dict[str, DownloadResult] = {}
 
         with (
@@ -281,6 +286,44 @@ class Downloader:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _inspect_one(self, url: str) -> DownloadResult:
+        """Extract metadata and print what would be downloaded, without downloading.
+
+        Args:
+            url: YouTube URL.
+
+        Returns:
+            DownloadResult with success=True (no output_path) on success.
+        """
+        opts: dict[str, Any] = {
+            "format": _format_selector(self._config.max_height),
+            "simulate": True,
+            "quiet": True,
+            "no_warnings": True,
+        }
+        if self._config.cookies_file:
+            opts["cookiefile"] = str(self._config.cookies_file)
+
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = cast(dict[str, Any], ydl.extract_info(url, download=False))
+        except yt_dlp.utils.DownloadError as exc:
+            _CONSOLE.print(f"[red]✗[/red] {url}  [dim]{exc}[/dim]")
+            return DownloadResult(url=url, success=False, error=str(exc))
+
+        title = info.get("title", url)
+        formats: list[dict[str, Any]] = info.get("requested_formats") or []
+        height = next((f.get("height") for f in formats if f.get("height")), info.get("height"))
+        filesize = sum(f.get("filesize") or f.get("filesize_approx") or 0 for f in formats)
+
+        resolution = f"{height}p" if height else "?"
+        size_str = f"{filesize / 1_048_576:.1f} MB" if filesize else "size unknown"
+
+        _CONSOLE.print(
+            f"[cyan]↳[/cyan] [bold]{title}[/bold]  [dim]{resolution} · {size_str}[/dim]"
+        )
+        return DownloadResult(url=url, success=True)
 
     def _download_one(self, url: str, progress: Progress) -> DownloadResult:
         """Download a single URL, adding a task to the shared *progress*.
@@ -386,6 +429,7 @@ class Downloader:
                 "http": lambda n: min(2**n, 60),
                 "fragment": lambda n: min(2**n, 60),
             },
+            "continuedl": True,
             "quiet": True,
             "no_warnings": False,
             "noprogress": True,
