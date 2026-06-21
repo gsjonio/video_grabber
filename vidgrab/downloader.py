@@ -119,47 +119,6 @@ def _check_ffmpeg() -> None:
         raise FfmpegNotFoundError()
 
 
-def _build_ydl_opts(
-    output_dir: Path,
-    max_height: int | None,
-    cookies_file: Path | None,
-    progress_hook: Callable[[dict], None] | None,
-) -> dict:
-    opts: dict = {
-        "format": _format_selector(max_height),
-        "outtmpl": _output_template(output_dir),
-        "merge_output_format": "mp4",
-        "writethumbnail": False,
-        "writeinfojson": False,
-        "noplaylist": True,
-        "retries": 10,
-        "fragment_retries": 10,
-        "retry_sleep_functions": {
-            "http": lambda n: min(2**n, 60),
-            "fragment": lambda n: min(2**n, 60),
-        },
-        "quiet": True,
-        "no_warnings": False,
-        "noprogress": True,
-        "postprocessors": [
-            {
-                "key": "FFmpegVideoConvertor",
-                "preferedformat": "mp4",
-            }
-        ],
-        # Remux only — never re-encode video or audio.
-        "postprocessor_args": {
-            "ffmpeg": ["-c", "copy"],
-        },
-    }
-
-    if progress_hook:
-        opts["progress_hooks"] = [progress_hook]
-
-    if cookies_file:
-        opts["cookiefile"] = str(cookies_file)
-
-    return opts
 
 
 def _run_ydl(url: str, opts: dict) -> dict:
@@ -379,7 +338,7 @@ class Downloader:
         Raises:
             VidGrabError: Typed error matching the failure category.
         """
-        opts = _build_ydl_opts(self._config.output_dir, self._config.max_height, self._config.cookies_file, hook)
+        opts = self._build_ydl_opts(hook)
 
         for attempt in range(_MAX_RETRY_ATTEMPTS):
             try:
@@ -396,6 +355,31 @@ class Downloader:
                 time.sleep(delay)
 
         raise RuntimeError("unreachable")  # pragma: no cover
+
+    def _build_ydl_opts(self, progress_hook: Callable[[dict], None]) -> dict:
+        opts: dict = {
+            "format": _format_selector(self._config.max_height),
+            "outtmpl": _output_template(self._config.output_dir),
+            "merge_output_format": "mp4",
+            "writethumbnail": False,
+            "writeinfojson": False,
+            "noplaylist": True,
+            "retries": 10,
+            "fragment_retries": 10,
+            "retry_sleep_functions": {
+                "http": lambda n: min(2**n, 60),
+                "fragment": lambda n: min(2**n, 60),
+            },
+            "quiet": True,
+            "no_warnings": False,
+            "noprogress": True,
+            "postprocessors": [{"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}],
+            "postprocessor_args": {"ffmpeg": ["-c", "copy"]},
+            "progress_hooks": [progress_hook],
+        }
+        if self._config.cookies_file:
+            opts["cookiefile"] = str(self._config.cookies_file)
+        return opts
 
     def _resolve_output_path(self, info: dict) -> Path:
         requested = info.get("requested_downloads")
