@@ -115,6 +115,11 @@ def _check_ffmpeg() -> None:
 
 
 
+def _is_creative_commons(info: dict) -> bool:
+    """Return True if the video is published under a Creative Commons license."""
+    return "creative commons" in (info.get("license") or "").lower()
+
+
 def _run_ydl(url: str, opts: dict) -> dict:
     """Execute a single yt-dlp extraction + download attempt.
 
@@ -312,6 +317,11 @@ class Downloader:
         info = self._extract_and_download(url, _hook)
         metadata = VideoMetadata.from_yt_dlp_info(info)
         final_path = self._resolve_output_path(info)
+
+        if not _is_creative_commons(info):
+            _CONSOLE.print(
+                f"[yellow]⚠  Not Creative Commons:[/yellow] {metadata.title}"
+            )
 
         if self._config.write_json:
             self._write_metadata_json(final_path, metadata)
