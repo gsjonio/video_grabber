@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Any, Optional
+from typing import Annotated, Optional
 
 import typer
 from rich.console import Console
@@ -145,9 +145,8 @@ def download(
         _ERR_CONSOLE.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    # Playlist mode: yt-dlp handles multi-video expansion internally
     if playlist:
-        all_urls = _expand_playlists(all_urls, dl)
+        all_urls = dl.expand_playlists(all_urls)
 
     results = dl.download_batch(all_urls)
 
@@ -172,57 +171,6 @@ def download(
             if r.error:
                 _CONSOLE.print(f"    [dim]{r.error}[/dim]")
         raise typer.Exit(code=1)
-
-
-def _expand_playlists(urls: list[str], dl: Downloader) -> list[str]:
-    """Extract individual video URLs from playlist URLs using yt-dlp.
-
-    Non-playlist URLs are passed through unchanged.
-
-    Args:
-        urls: Mix of playlist and single-video URLs.
-        dl: Configured Downloader instance (provides cookies/options).
-
-    Returns:
-        Flat list of individual video URLs.
-    """
-    import yt_dlp
-
-    expanded: list[str] = []
-    ydl_opts: dict[str, Any] = {
-        "quiet": True,
-        "extract_flat": True,  # don't download, just list entries
-        "noplaylist": False,
-    }
-    if dl.cookies_file:
-        ydl_opts["cookiefile"] = str(dl.cookies_file)
-
-    for url in urls:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # type: ignore[arg-type]
-            try:
-                info = ydl.extract_info(url, download=False)
-            except Exception as exc:
-                _ERR_CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
-                expanded.append(url)
-                continue
-
-            if info is None:
-                expanded.append(url)
-                continue
-
-            entries = info.get("entries")
-            if entries:
-                for entry in entries:
-                    entry_url = entry.get("url") or entry.get("webpage_url")
-                    if entry_url:
-                        # Entries from extract_flat may only have an ID
-                        if not entry_url.startswith("http"):
-                            entry_url = f"https://www.youtube.com/watch?v={entry_url}"
-                        expanded.append(entry_url)
-            else:
-                expanded.append(url)
-
-    return expanded
 
 
 def main() -> None:

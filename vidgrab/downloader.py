@@ -215,6 +215,48 @@ class Downloader:
     # Public API
     # ------------------------------------------------------------------
 
+    def expand_playlists(self, urls: list[str]) -> list[str]:
+        """Resolve playlist URLs into individual video watch URLs.
+
+        Non-playlist URLs are passed through unchanged.
+
+        Args:
+            urls: Mix of playlist and single-video URLs.
+
+        Returns:
+            Flat list of individual video URLs.
+        """
+        opts: dict = {
+            "quiet": True,
+            "extract_flat": True,
+            "noplaylist": False,
+        }
+        if self.cookies_file:
+            opts["cookiefile"] = str(self.cookies_file)
+
+        expanded: list[str] = []
+        for url in urls:
+            with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
+                try:
+                    info = ydl.extract_info(url, download=False)
+                except Exception as exc:
+                    _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
+                    expanded.append(url)
+                    continue
+
+            entries = (info or {}).get("entries")
+            if not entries:
+                expanded.append(url)
+                continue
+
+            for entry in entries:
+                entry_url = entry.get("url") or entry.get("webpage_url", "")
+                if not entry_url.startswith("http"):
+                    entry_url = f"https://www.youtube.com/watch?v={entry_url}"
+                expanded.append(entry_url)
+
+        return expanded
+
     def download(self, url: str) -> DownloadResult:
         """Download a single video URL.
 
