@@ -93,9 +93,12 @@ class _ErrorKind(enum.Enum):
 
 
 _ERROR_PATTERNS: tuple[tuple[_ErrorKind, tuple[str, ...]], ...] = (
-    (_ErrorKind.UNAVAILABLE, ("video unavailable", "private video", "has been removed", "no longer available", "deleted")),
-    (_ErrorKind.GEO,         ("not available in your country", "geo", "region")),
-    (_ErrorKind.AGE,         ("age-restricted", "age restricted", "sign in to confirm your age")),
+    (_ErrorKind.UNAVAILABLE, (
+        "video unavailable", "private video", "has been removed",
+        "no longer available", "deleted",
+    )),
+    (_ErrorKind.GEO,          ("not available in your country", "geo", "region")),
+    (_ErrorKind.AGE,          ("age-restricted", "age restricted", "sign in to confirm your age")),
     (_ErrorKind.RATE_LIMITED, ("429", "rate", "too many", "http error 5")),
 )
 
@@ -202,7 +205,7 @@ class Downloader:
             try:
                 with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
                     info = ydl.extract_info(url, download=False)
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
                 _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
                 expanded.append(url)
                 continue
