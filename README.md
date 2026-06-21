@@ -2,79 +2,85 @@
 
 **PT-BR** | [EN](#english)
 
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Version](https://img.shields.io/badge/version-0.2.0-orange)
+
+Ferramenta de linha de comando para baixar vídeos do YouTube na **maior qualidade técnica disponível** — vídeo + áudio em streams separados (DASH), mesclados sem reencode. Pensada para uso como material bruto em edição de vídeo.
+
 ---
 
 ## PT-BR
 
-Ferramenta de linha de comando para baixar vídeos do YouTube na **maior
-qualidade técnica disponível** — vídeo + áudio em streams separados (DASH),
-mesclados sem reencode. Pensada para uso como material bruto em edição de
-vídeo.
+- [Dependências](#dependências-externas)
+- [Instalação](#instalação)
+- [Uso](#uso)
+- [Opções](#referência-de-opções)
+
+---
 
 ### Dependências externas
 
 | Ferramenta | Para quê | Como instalar |
-|------------|----------|---------------|
+|---|---|---|
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
 | **ffmpeg** | Mesclar streams de vídeo e áudio | Veja abaixo |
-| **yt-dlp** | Engine de download | Instalado automaticamente via pip |
+| **yt-dlp** | Engine de download | Instalado automaticamente via Poetry |
 | **Deno** *(opcional)* | Acesso a todos os formatos do YouTube, incluindo 4K/HDR | Veja abaixo |
 
-#### Instalando o ffmpeg
+<details>
+<summary>Instalando o ffmpeg</summary>
 
-**Windows** (via winget):
-```
+**Windows**
+```bash
 winget install ffmpeg
 ```
-Ou baixe o executável em <https://ffmpeg.org/download.html> e adicione ao
-`PATH`.
 
-#### Instalando o Deno (recomendado)
-
-Sem o Deno, o yt-dlp usa um método alternativo que pode não enxergar todos os
-formatos disponíveis (ex.: 4K, HDR). Com o Deno instalado, a extração é
-completa.
-
-**Windows** (via winget):
-```
-winget install DenoLand.Deno
-```
-
-**macOS** (via Homebrew):
-```
-brew install deno
-```
-
-**Linux**:
-```
-curl -fsSL https://deno.land/install.sh | sh
-```
-
-**macOS** (via Homebrew):
-```
+**macOS**
+```bash
 brew install ffmpeg
 ```
 
-**Linux** (Debian/Ubuntu):
-```
+**Linux (Debian/Ubuntu)**
+```bash
 sudo apt install ffmpeg
 ```
+
+Ou baixe o executável em <https://ffmpeg.org/download.html> e adicione ao `PATH`.
+</details>
+
+<details>
+<summary>Instalando o Deno (recomendado para 4K/HDR)</summary>
+
+Sem o Deno, o yt-dlp usa um método alternativo que pode não enxergar todos os formatos disponíveis. Com o Deno instalado, a extração é completa.
+
+**Windows**
+```bash
+winget install DenoLand.Deno
+```
+
+**macOS**
+```bash
+brew install deno
+```
+
+**Linux**
+```bash
+curl -fsSL https://deno.land/install.sh | sh
+```
+</details>
+
+---
 
 ### Instalação
 
 ```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/vidgrab.git
+git clone https://github.com/gsjonio/vidgrab.git
 cd vidgrab
-
-# Crie e ative um virtualenv
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS/Linux
-
-# Instale as dependências
-pip install -e .
+poetry install
 ```
+
+---
 
 ### Uso
 
@@ -97,19 +103,24 @@ vidgrab --batch urls.txt
 # Forçar re-download mesmo se o arquivo já existir
 vidgrab https://youtu.be/dQw4w9WgXcQ --force
 
-# Conteúdo com restrição de idade (forneça um arquivo de cookies do browser)
+# Conteúdo com restrição de idade
 vidgrab https://youtu.be/dQw4w9WgXcQ --cookies ~/cookies.txt
+
+# Salvar metadados em JSON
+vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 ```
 
-#### Formato do arquivo `--batch`
+#### Arquivo `--batch`
 
-Uma URL por linha. Linhas começando com `#` são ignoradas.
+Uma URL por linha. Linhas com `#` são ignoradas.
 
 ```
-# Meus vídeos favoritos
+# Meus vídeos
 https://youtu.be/dQw4w9WgXcQ
 https://youtu.be/VIDEO_ID_2
 ```
+
+---
 
 ### Nomeação dos arquivos
 
@@ -117,13 +128,9 @@ https://youtu.be/VIDEO_ID_2
 {data_upload}-{slug-do-titulo}-{video_id}.{ext}
 ```
 
-Exemplo: `20240315-tutorial-de-edicao-de-video-dQw4w9WgXcQ.mp4`
+Exemplo: `20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4`
 
-Use `--write-json` para salvar um arquivo `.json` de metadados ao lado de cada vídeo:
-
-```bash
-vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
-```
+Com `--write-json`, um arquivo `.json` é criado ao lado do vídeo:
 
 ```json
 {
@@ -138,83 +145,110 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 }
 ```
 
+---
+
 ### Container e qualidade
 
 | Streams disponíveis | Container de saída |
-|---------------------|-------------------|
-| H.264 vídeo + AAC áudio | `mp4` (sem reencode) |
-| VP9/AV1 vídeo + Opus áudio | `mkv` (sem reencode) |
+|---|---|
+| H.264 + AAC | `mp4` (sem reencode) |
+| VP9 / AV1 + Opus | `mkv` (sem reencode) |
 
 O objetivo é **nunca recodificar** — apenas mesclar os streams.
 
+---
+
 ### Referência de opções
 
-```
-Argumentos:
-  [URLS]...               Uma ou mais URLs do YouTube
-
-Opções:
-  -b, --batch FILE        Arquivo .txt com uma URL por linha
-  -o, --output DIR        Diretório de saída (padrão: diretório atual)
-  --max-height INT        Limitar resolução vertical (ex.: 1080)
-  --playlist              Tratar URLs como playlists
-  -f, --force             Reforçar download mesmo se arquivo existe
-  --cookies FILE          Arquivo de cookies (Netscape format)
-  --write-json            Salvar metadados em .json ao lado do vídeo
-  -V, --version           Exibir versão
-  --help                  Exibir ajuda
-```
+| Opção | Atalho | Descrição |
+|---|---|---|
+| `[URLS]...` | | Uma ou mais URLs do YouTube |
+| `--batch FILE` | `-b` | Arquivo `.txt` com uma URL por linha |
+| `--output DIR` | `-o` | Diretório de saída (padrão: diretório atual) |
+| `--max-height INT` | | Limitar resolução vertical (ex.: `1080`) |
+| `--playlist` | | Tratar URLs como playlists |
+| `--force` | `-f` | Re-download mesmo se o arquivo já existe |
+| `--cookies FILE` | | Arquivo de cookies (formato Netscape) |
+| `--write-json` | | Salvar metadados em `.json` ao lado do vídeo |
+| `--workers INT` | `-w` | Número de downloads paralelos (padrão: `3`, máx: `8`) |
+| `--version` | `-V` | Exibir versão |
+| `--help` | | Exibir ajuda |
 
 ---
 
 ## English
 
-Command-line tool to download YouTube videos at the **highest technically
-available quality** — separate video + audio DASH streams, merged without
-re-encoding. Intended as raw footage for video editing.
+CLI tool to download YouTube videos at the **highest technically available quality** — separate video + audio DASH streams, merged without re-encoding. Intended as raw footage for video editing.
+
+- [Dependencies](#external-dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Options](#option-reference)
+
+---
 
 ### External dependencies
 
 | Tool | Purpose | How to install |
-|------|---------|----------------|
+|---|---|---|
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
 | **ffmpeg** | Merge video + audio streams | See below |
-| **yt-dlp** | Download engine | Installed automatically via pip |
+| **yt-dlp** | Download engine | Installed automatically via Poetry |
+| **Deno** *(optional)* | Access all YouTube formats including 4K/HDR | See below |
 
-#### Installing ffmpeg
+<details>
+<summary>Installing ffmpeg</summary>
 
-**Windows** (via winget):
-```
+**Windows**
+```bash
 winget install ffmpeg
 ```
-Or grab the binary from <https://ffmpeg.org/download.html> and add it to your
-`PATH`.
 
-**macOS** (via Homebrew):
-```
+**macOS**
+```bash
 brew install ffmpeg
 ```
 
-**Linux** (Debian/Ubuntu):
-```
+**Linux (Debian/Ubuntu)**
+```bash
 sudo apt install ffmpeg
 ```
+
+Or grab the binary from <https://ffmpeg.org/download.html> and add it to your `PATH`.
+</details>
+
+<details>
+<summary>Installing Deno (recommended for 4K/HDR)</summary>
+
+Without Deno, yt-dlp falls back to an alternative extraction method that may not expose all available formats. With Deno, extraction is complete.
+
+**Windows**
+```bash
+winget install DenoLand.Deno
+```
+
+**macOS**
+```bash
+brew install deno
+```
+
+**Linux**
+```bash
+curl -fsSL https://deno.land/install.sh | sh
+```
+</details>
+
+---
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/vidgrab.git
+git clone https://github.com/gsjonio/vidgrab.git
 cd vidgrab
-
-# Create and activate a virtualenv
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS/Linux
-
-# Install dependencies
-pip install -e .
+poetry install
 ```
+
+---
 
 ### Usage
 
@@ -237,8 +271,11 @@ vidgrab --batch urls.txt
 # Force re-download even if the file already exists
 vidgrab https://youtu.be/dQw4w9WgXcQ --force
 
-# Age-restricted content (provide a browser cookies file)
+# Age-restricted content
 vidgrab https://youtu.be/dQw4w9WgXcQ --cookies ~/cookies.txt
+
+# Save metadata as JSON
+vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 ```
 
 #### `--batch` file format
@@ -246,10 +283,12 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --cookies ~/cookies.txt
 One URL per line. Lines starting with `#` are ignored.
 
 ```
-# My favourite videos
+# My videos
 https://youtu.be/dQw4w9WgXcQ
 https://youtu.be/VIDEO_ID_2
 ```
+
+---
 
 ### Output filename pattern
 
@@ -257,13 +296,9 @@ https://youtu.be/VIDEO_ID_2
 {upload_date}-{title-slug}-{video_id}.{ext}
 ```
 
-Example: `20240315-tutorial-de-edicao-de-video-dQw4w9WgXcQ.mp4`
+Example: `20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4`
 
-Use `--write-json` to save a `.json` sidecar file next to each video:
-
-```bash
-vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
-```
+With `--write-json`, a `.json` sidecar is saved next to each video:
 
 ```json
 {
@@ -278,29 +313,31 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 }
 ```
 
+---
+
 ### Container and quality
 
 | Available streams | Output container |
-|-------------------|-----------------|
-| H.264 video + AAC audio | `mp4` (no re-encode) |
-| VP9/AV1 video + Opus audio | `mkv` (no re-encode) |
+|---|---|
+| H.264 + AAC | `mp4` (no re-encode) |
+| VP9 / AV1 + Opus | `mkv` (no re-encode) |
 
 The goal is to **never re-encode** — only mux the streams.
 
+---
+
 ### Option reference
 
-```
-Arguments:
-  [URLS]...               One or more YouTube URLs
-
-Options:
-  -b, --batch FILE        .txt file with one URL per line
-  -o, --output DIR        Output directory (default: current directory)
-  --max-height INT        Cap vertical resolution (e.g. 1080)
-  --playlist              Treat URLs as playlists
-  -f, --force             Re-download even if file exists
-  --cookies FILE          Cookies file (Netscape format)
-  --write-json            Save metadata as a .json sidecar next to the video
-  -V, --version           Show version and exit
-  --help                  Show help
-```
+| Option | Short | Description |
+|---|---|---|
+| `[URLS]...` | | One or more YouTube URLs |
+| `--batch FILE` | `-b` | `.txt` file with one URL per line |
+| `--output DIR` | `-o` | Output directory (default: current directory) |
+| `--max-height INT` | | Cap vertical resolution (e.g. `1080`) |
+| `--playlist` | | Treat URLs as playlists |
+| `--force` | `-f` | Re-download even if the file already exists |
+| `--cookies FILE` | | Cookies file (Netscape format) |
+| `--write-json` | | Save metadata as a `.json` sidecar next to the video |
+| `--workers INT` | `-w` | Number of parallel downloads (default: `3`, max: `8`) |
+| `--version` | `-V` | Show version and exit |
+| `--help` | | Show help |
