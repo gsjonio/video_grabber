@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vidgrab"
-version = "0.2.0"
+version = "0.3.0"
 description = "CLI tool to download YouTube videos at maximum quality for video editing"
 authors = ["gsjonio"]
 license = "MIT"
@@ -25,7 +25,9 @@ dev = [
     "ruff (>=0.15.18,<0.16.0)",
     "pylint (>=4.0.6,<5.0.0)",
     "mypy (>=2.1.0,<3.0.0)",
-    "pre-commit (>=4.6.0,<5.0.0)"
+    "pre-commit (>=4.6.0,<5.0.0)",
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)"
 ]
 
 [tool.ruff]
@@ -52,9 +54,10 @@ py-version = "3.11"
 max-line-length = 100
 
 [tool.pylint.design]
-max-args = 10
-max-positional-arguments = 10
+max-args = 12
+max-positional-arguments = 12
 max-attributes = 10
+max-locals = 20
 
 [tool.pylint.messages_control]
 disable = [
@@ -65,3 +68,10 @@ disable = [
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=vidgrab --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+omit = ["vidgrab/__main__.py"]
