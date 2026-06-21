@@ -33,7 +33,7 @@ from .exceptions import (
 )
 from .models import DownloadResult, VideoMetadata
 
-console = Console(stderr=True)
+_CONSOLE: Console = Console(stderr=True)
 
 _UNAVAILABLE_PHRASES = (
     "video unavailable",
@@ -135,7 +135,7 @@ def _make_progress() -> Progress:
         DownloadColumn(),
         TransferSpeedColumn(),
         TimeRemainingColumn(),
-        console=console,
+        console=_CONSOLE,
         transient=True,
     )
 
@@ -205,7 +205,7 @@ class Downloader:
                     try:
                         result = future.result()
                     except VidGrabError as exc:
-                        console.print(f"  [red]✗[/red] {exc}")
+                        _CONSOLE.print(f"  [red]✗[/red] {exc}")
                         result = DownloadResult(url=url, success=False, error=str(exc))
                     result_map[url] = result
 
@@ -213,11 +213,11 @@ class Downloader:
         for url in urls:
             result = result_map[url]
             if result.skipped:
-                console.print(f"[yellow]↷[/yellow] Already exists: {url}")
+                _CONSOLE.print(f"[yellow]↷[/yellow] Already exists: {url}")
             elif result.success and result.output_path:
-                console.print(f"[green]✓[/green] {result.output_path.name}")
+                _CONSOLE.print(f"[green]✓[/green] {result.output_path.name}")
             else:
-                console.print(f"[red]✗[/red] {url}")
+                _CONSOLE.print(f"[red]✗[/red] {url}")
 
         return [result_map[url] for url in urls]
 
@@ -320,7 +320,7 @@ class Downloader:
                     p in msg.lower() for p in ("429", "rate", "too many", "http error 5")
                 ):
                     delay = base_delay * (2**attempt)
-                    console.print(
+                    _CONSOLE.print(
                         f"  [yellow]Rate limited — retrying in {delay:.0f}s "
                         f"(attempt {attempt + 1}/{max_attempts})[/yellow]"
                     )

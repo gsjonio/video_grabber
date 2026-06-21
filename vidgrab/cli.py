@@ -18,13 +18,13 @@ app = typer.Typer(
     help="Download YouTube videos at maximum quality for video editing.",
     add_completion=False,
 )
-console = Console()
-err_console = Console(stderr=True)
+_CONSOLE: Console = Console()
+_ERR_CONSOLE: Console = Console(stderr=True)
 
 
 def _version_callback(value: bool) -> None:
     if value:
-        console.print(f"vidgrab {__version__}")
+        _CONSOLE.print(f"vidgrab {__version__}")
         raise typer.Exit()
 
 
@@ -128,7 +128,7 @@ def download(
         all_urls.extend(batch_urls)
 
     if not all_urls:
-        err_console.print(
+        _ERR_CONSOLE.print(
             "[red]Error:[/red] provide at least one URL or use --batch <file.txt>."
         )
         raise typer.Exit(code=1)
@@ -142,7 +142,7 @@ def download(
             workers=workers,
         )
     except FfmpegNotFoundError as exc:
-        err_console.print(f"[red]Error:[/red] {exc}")
+        _ERR_CONSOLE.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(code=1) from exc
 
     # Playlist mode: yt-dlp handles multi-video expansion internally
@@ -156,21 +156,21 @@ def download(
     skipped = [r for r in results if r.skipped]
     failed = [r for r in results if not r.success]
 
-    console.print()
+    _CONSOLE.print()
     table = Table(title="Summary", show_header=True, header_style="bold")
     table.add_column("Status", style="bold", width=10)
     table.add_column("Count", justify="right")
     table.add_row("[green]Downloaded[/green]", str(len(success)))
     table.add_row("[yellow]Skipped[/yellow]", str(len(skipped)))
     table.add_row("[red]Failed[/red]", str(len(failed)))
-    console.print(table)
+    _CONSOLE.print(table)
 
     if failed:
-        console.print("\n[red]Failed URLs:[/red]")
+        _CONSOLE.print("\n[red]Failed URLs:[/red]")
         for r in failed:
-            console.print(f"  • {r.url}")
+            _CONSOLE.print(f"  • {r.url}")
             if r.error:
-                console.print(f"    [dim]{r.error}[/dim]")
+                _CONSOLE.print(f"    [dim]{r.error}[/dim]")
         raise typer.Exit(code=1)
 
 
@@ -202,7 +202,7 @@ def _expand_playlists(urls: list[str], dl: Downloader) -> list[str]:
             try:
                 info = ydl.extract_info(url, download=False)
             except Exception as exc:
-                err_console.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
+                _ERR_CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
                 expanded.append(url)
                 continue
 
