@@ -1,4 +1,4 @@
-# vidgrab
+# Vidgrab
 
 **PT-BR** | [EN](#english)
 
