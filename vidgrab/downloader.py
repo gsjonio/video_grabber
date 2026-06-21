@@ -47,6 +47,9 @@ _GEO_PHRASES = ("not available in your country", "geo", "region")
 _AGE_PHRASES = ("age-restricted", "age restricted", "sign in to confirm your age")
 _RATE_PHRASES = ("429", "rate", "too many", "http error 5")
 
+_MAX_RETRY_ATTEMPTS: int = 5
+_RETRY_BASE_DELAY: float = 2.0
+
 _VIDEO_ID_RE: re.Pattern[str] = re.compile(
     r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})"
 )
@@ -137,6 +140,35 @@ def _build_ydl_opts(
         opts["cookiefile"] = str(cookies_file)
 
     return opts
+
+
+def _run_ydl(url: str, opts: dict) -> dict:
+    """Execute a single yt-dlp extraction + download attempt.
+
+    Translates yt-dlp errors into typed VidGrabErrors.
+
+    Raises:
+        VideoUnavailableError: Video is private, deleted or unavailable.
+        GeoBlockedError: Video is blocked in the current region.
+        AgeRestrictedError: Video requires cookies to bypass age gate.
+        DownloadError: Any other failure (including retryable rate-limits).
+    """
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
+            info = ydl.extract_info(url, download=True)
+            if info is None:
+                raise DownloadError(url, "yt-dlp returned no info")
+            return info
+    except yt_dlp.utils.DownloadError as exc:
+        msg = str(exc)
+        kind = _classify_error(msg)
+        if kind is _ErrorKind.UNAVAILABLE:
+            raise VideoUnavailableError(url, reason=msg) from exc
+        if kind is _ErrorKind.GEO:
+            raise GeoBlockedError(url) from exc
+        if kind is _ErrorKind.AGE:
+            raise AgeRestrictedError(url) from exc
+        raise DownloadError(url, reason=msg) from exc
 
 
 def _make_progress() -> Progress:
@@ -288,57 +320,35 @@ class Downloader:
         )
 
     def _extract_and_download(self, url: str, hook: Callable[[dict], None]) -> dict:
-        """Run yt-dlp extraction + download and translate errors.
+        """Run yt-dlp download with exponential-backoff retry on rate-limits.
 
         Args:
             url: YouTube URL.
-            hook: Progress hook callable.
+            hook: Progress hook forwarded to yt-dlp.
 
         Returns:
-            The raw info dict from yt-dlp.
+            Raw yt-dlp info dict on success.
 
         Raises:
-            VideoUnavailableError: Video is private/deleted/unavailable.
-            GeoBlockedError: Video is blocked in the current region.
-            AgeRestrictedError: Video requires age verification.
-            DownloadError: Any other download failure.
+            VidGrabError: Typed error matching the failure category.
         """
         opts = _build_ydl_opts(self.output_dir, self.max_height, self.cookies_file, hook)
 
-        attempt = 0
-        max_attempts = 5
-        base_delay = 2.0
-
-        while True:
+        for attempt in range(_MAX_RETRY_ATTEMPTS):
             try:
-                with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
-                    info = ydl.extract_info(url, download=True)
-                    if info is None:
-                        raise DownloadError(url, "yt-dlp returned no info")
-                    return info
+                return _run_ydl(url, opts)
+            except DownloadError as exc:
+                is_last = attempt == _MAX_RETRY_ATTEMPTS - 1
+                if _classify_error(exc.reason) is not _ErrorKind.RATE_LIMITED or is_last:
+                    raise
+                delay = _RETRY_BASE_DELAY * (2**attempt)
+                _CONSOLE.print(
+                    f"  [yellow]Rate limited — retrying in {delay:.0f}s "
+                    f"({attempt + 1}/{_MAX_RETRY_ATTEMPTS})[/yellow]"
+                )
+                time.sleep(delay)
 
-            except yt_dlp.utils.DownloadError as exc:
-                msg = str(exc)
-                kind = _classify_error(msg)
-
-                if kind is _ErrorKind.UNAVAILABLE:
-                    raise VideoUnavailableError(url, reason=msg) from exc
-                if kind is _ErrorKind.GEO:
-                    raise GeoBlockedError(url) from exc
-                if kind is _ErrorKind.AGE:
-                    raise AgeRestrictedError(url) from exc
-
-                if kind is _ErrorKind.RATE_LIMITED and attempt < max_attempts:
-                    delay = base_delay * (2**attempt)
-                    _CONSOLE.print(
-                        f"  [yellow]Rate limited — retrying in {delay:.0f}s "
-                        f"(attempt {attempt + 1}/{max_attempts})[/yellow]"
-                    )
-                    time.sleep(delay)
-                    attempt += 1
-                    continue
-
-                raise DownloadError(url, reason=msg) from exc
+        raise RuntimeError("unreachable")  # pragma: no cover
 
     def _resolve_output_path(self, info: dict) -> Path:
         requested = info.get("requested_downloads")
