@@ -193,13 +193,13 @@ class Downloader:
 
         expanded: list[str] = []
         for url in urls:
-            with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
-                try:
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
                     info = ydl.extract_info(url, download=False)
-                except Exception as exc:
-                    _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
-                    expanded.append(url)
-                    continue
+            except Exception as exc:
+                _CONSOLE.print(f"[yellow]Warning:[/yellow] could not expand {url}: {exc}")
+                expanded.append(url)
+                continue
 
             entries = (info or {}).get("entries")
             if not entries:
