@@ -1,732 +1,388 @@
-﻿# vidgrab
+# vidgrab
 
-**[ðŸ‡§ðŸ‡· PT-BR](#pt-br)** â€¢ **[ðŸ‡¬ðŸ‡§ English](#english)**
+**PT-BR** | [EN](#english)
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.5.2-orange)
+![Version](https://img.shields.io/badge/version-0.5.1-orange)
 [![Lint](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/lint.yml)
-[![Tests](https://img.shields.io/badge/tests-120-brightgreen)](https://github.com/gsjonio/video_grabber/actions)
-[![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
 [![CodeQL](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml/badge.svg)](https://github.com/gsjonio/video_grabber/actions/workflows/codeql.yml)
+[![Coverage](https://codecov.io/gh/gsjonio/video_grabber/branch/main/graph/badge.svg)](https://codecov.io/gh/gsjonio/video_grabber)
 ![Last commit](https://img.shields.io/github/last-commit/gsjonio/video_grabber)
+
+CLI para baixar vídeos do YouTube na **maior qualidade técnica disponível** — streams de vídeo e áudio separados (DASH), mesclados via FFmpeg sem nenhum reencode. Feito para quem usa vídeo como material bruto em edição.
 
 ---
 
 ## PT-BR
 
-**vidgrab** Ã© um CLI para baixar vÃ­deos do YouTube na **mÃ¡xima qualidade tÃ©cnica disponÃ­vel** â€” sem reencode, sem perda de qualidade. Streams de vÃ­deo e Ã¡udio separados (DASH) sÃ£o mesclados via FFmpeg em modo cÃ³pia, ideal para editing profissional e material de arquivo.
-
-Feito para quem leva a qualidade a sÃ©rio.
-
-### ðŸ“‹ Ãndice
-
-- [InÃ­cio rÃ¡pido](#inÃ­cio-rÃ¡pido)
-
 - [Como funciona](#como-funciona)
-
 - [Funcionalidades](#funcionalidades)
-
-- [DependÃªncias](#dependÃªncias-externas)
-
-- [InstalaÃ§Ã£o](#instalaÃ§Ã£o)
-
-- [Exemplos](#exemplos)
-
+- [Dependências](#dependências-externas)
+- [Instalação](#instalação)
+- [Uso](#uso)
 - [Config file](#config-file)
-
-- [OpÃ§Ãµes](#referÃªncia-de-opÃ§Ãµes)
-
-- [Troubleshooting](#troubleshooting)
-
-- [Qualidade de cÃ³digo](#qualidade-de-cÃ³digo)
-
-- [Contribuindo](#contribuindo)
-
----
-
-### InÃ­cio rÃ¡pido
-
-```bash
-# Instalar
-pip install vidgrab
-
-# Usar
-vidgrab https://youtu.be/dQw4w9WgXcQ
-
-# Inspecionar antes de baixar
-vidgrab https://youtu.be/dQw4w9WgXcQ --dry-run
-
-# Batch + 5 workers
-vidgrab --batch urls.txt --workers 5 --quiet && echo "âœ“ Done"
-
-`  ext
+- [Opções](#referência-de-opções)
+- [Qualidade de código](#qualidade-de-código)
 
 ---
 
 ### Como funciona
 
-Ao contrÃ¡rio da maioria das ferramentas, vidgrab **nÃ£o recodifica**. Downloads via reencode perdem qualidade e gastam tempo processando. Veja:
+A maioria das ferramentas de download aplica reencode para juntar vídeo e áudio — o que degrada a qualidade e desperdiça tempo. O vidgrab faz diferente:
 
 ```text
-YouTube
-  â”œâ”€ vÃ­deo stream (H.264 / VP9 / AV1)  â”€â”
-  â””â”€ Ã¡udio stream (AAC / Opus)          â”€â”´â”€â†’ FFmpeg (copy mode) â”€â†’ MP4 / MKV
+YouTube  →  stream de vídeo (H.264 / VP9 / AV1)  ─┐
+         →  stream de áudio (AAC / Opus)           ─┴→  FFmpeg mux  →  arquivo final
+```
 
-`  ext
-
-Ambos os streams sÃ£o baixados no formato DASH (mÃ¡xima qualidade) e mesclados **sem recodificaÃ§Ã£o**. O resultado Ã© um arquivo pronto para ediÃ§Ã£o com qualidade intacta.
+Os dois streams são baixados separadamente no formato DASH (maior qualidade disponível) e mesclados em **modo cópia** — sem recodificação, sem perda de qualidade.
 
 ---
 
 ### Funcionalidades
 
-| Feature | DescriÃ§Ã£o | Comando |
+| | Funcionalidade | Detalhe |
 | --- | --- | --- |
-| âš¡ **Downloads paralelos** | AtÃ© 8 vÃ­deos simultÃ¢neos | `--workers 8` |
-| ðŸ” **Retry inteligente** | Backoff exponencial em rate-limits (HTTP 429) | automÃ¡tico |
-| ðŸ” **Dry-run** | Veja tÃ­tulo, resoluÃ§Ã£o, tamanho antes de baixar | `--dry-run` |
-| â¸ **Resume automÃ¡tico** | Retoma downloads interrompidos | automÃ¡tico |
-| ðŸ“‹ **Batch download** | Arquivo `.txt` com uma URL por linha | `--batch urls.txt` |
-| ðŸŽ¬ **Playlists** | Expande automaticamente todos os vÃ­deos | `--playlist` |
-| ðŸ“ **Skip inteligente** | Detecta e pula arquivos jÃ¡ baixados por ID | automÃ¡tico |
-| ðŸ“„ **Metadados JSON** | Sidecar com tÃ­tulo, canal, tags, data | `--write-json` |
-| ðŸ”’ **ConteÃºdo restrito** | Suporte a cookies (age-gate, regiÃ£o) | `--cookies file.txt` |
-| âš™ï¸ **Config file** | Defaults pessoais em `~/.config/vidgrab/config.toml` | automÃ¡tico |
-| ðŸ· **Nomes previsÃ­veis** | `{data}-{slug}-{video_id}.{ext}` | automÃ¡tico |
-| âš ï¸ **Aviso de licenÃ§a** | Alerta se nÃ£o Ã© Creative Commons | automÃ¡tico |
-| ðŸš« **Modo quiet** | Suprime saÃ­da para scripts e pipelines | `--quiet` |
-| ðŸŽ¨ **Shell completion** | Auto-complete para bash/zsh/fish | `--install-completion` |
+| ⚡ | **Downloads paralelos** | Até 8 simultâneos via `--workers` |
+| 🔁 | **Retry inteligente** | Backoff exponencial em rate-limits (até 5 tentativas) |
+| 🔍 | **Dry run** | Veja título, resolução e tamanho antes de baixar |
+| ⏸ | **Resume automático** | Downloads interrompidos são retomados de onde pararam |
+| 📋 | **Batch download** | Arquivo `.txt` com uma URL por linha |
+| 🎬 | **Playlists** | Expande e baixa todos os vídeos de uma playlist |
+| 📁 | **Skip inteligente** | Detecta arquivo existente pelo ID e pula automaticamente |
+| 📄 | **Metadados JSON** | Sidecar `.json` com título, canal, data, tags e mais |
+| 🔒 | **Conteúdo restrito** | Suporte a cookies (Netscape) para vídeos com age-gate |
+| ⚙️ | **Config file** | Defaults pessoais em `~/.config/vidgrab/config.toml` |
+| 🏷 | **Nomes previsíveis** | `{data}-{slug}-{video_id}.{ext}` em todo download |
+| ⚠️ | **Aviso de licença** | Alerta quando o vídeo não é Creative Commons |
 
 ---
 
-### DependÃªncias externas
+### Dependências externas
 
-| Ferramenta | Para quÃª | Instalar |
+| Ferramenta | Para quê | Como instalar |
 | --- | --- | --- |
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
-| **ffmpeg** | Mesclar streams (crÃ­tico) | Veja abaixo |
-| **yt-dlp** | Download (automÃ¡tico) | via Poetry |
-| **Deno** *(opt)* | 4K/HDR (melhor extraÃ§Ã£o) | Veja abaixo |
+| **ffmpeg** | Mesclar streams de vídeo e áudio | Veja abaixo |
+| **yt-dlp** | Engine de download | Instalado automaticamente via Poetry |
+| **Deno** *(opcional)* | Acesso a todos os formatos do YouTube, incluindo 4K/HDR | Veja abaixo |
 
 <details>
-<summary><b>Instalando ffmpeg</b></summary>
+<summary>Instalando o ffmpeg</summary>
 
-**Windows:**
+#### Windows
 
 ```bash
 winget install ffmpeg
+```
 
-`  ext
-
-**macOS:**
+#### macOS
 
 ```bash
 brew install ffmpeg
+```
 
-`  ext
-
-**Linux (Debian/Ubuntu):**
+#### Linux (Debian/Ubuntu)
 
 ```bash
 sudo apt install ffmpeg
+```
 
-`  ext
-
-Ou baixe em [ffmpeg.org/download.html](https://ffmpeg.org/download.html) e adicione ao `PATH`.
-
-Verifique: `ffmpeg -version`
+Ou baixe o executável em <https://ffmpeg.org/download.html> e adicione ao `PATH`.
 
 </details>
 
 <details>
-<summary><b>Instalando Deno (recomendado para 4K/HDR)</b></summary>
+<summary>Instalando o Deno (recomendado para 4K/HDR)</summary>
 
-Sem Deno, yt-dlp usa fallback que pode perder formatos 4K. Com Deno, extraÃ§Ã£o Ã© completa.
+Sem o Deno, o yt-dlp usa um método alternativo que pode não enxergar todos os formatos disponíveis. Com o Deno instalado, a extração é completa.
 
-**Windows:**
+#### Windows
 
 ```bash
 winget install DenoLand.Deno
+```
 
-`  ext
-
-**macOS:**
+#### macOS
 
 ```bash
 brew install deno
+```
 
-`  ext
-
-**Linux:**
+#### Linux
 
 ```bash
 curl -fsSL https://deno.land/install.sh | sh
-
-`  ext
-
-Verifique: `deno --version`
+```
 
 </details>
 
 ---
 
-### InstalaÃ§Ã£o
-
-<details>
-<summary><b>Via pip (recomendado)</b></summary>
-
-```bash
-pip install vidgrab
-
-`  ext
-
-Depois, instale ffmpeg conforme acima.
-
-</details>
-
-<details>
-<summary><b>Via Poetry (desenvolvimento)</b></summary>
+### Instalação
 
 ```bash
 git clone https://github.com/gsjonio/video_grabber.git
 cd video_grabber
 poetry install
-poetry run vidgrab --help
-
-`  ext
-
-</details>
-
-<details>
-<summary><b>Via pipx (isolado)</b></summary>
-
-```bash
-pipx install vidgrab
-
-`  ext
-
-Ideal se vocÃª quer isolamento de dependÃªncias.
-
-</details>
+```
 
 ---
 
-### Exemplos
-
-**BÃ¡sico â€” um vÃ­deo:**
+### Uso
 
 ```bash
+# Vídeo único — qualidade máxima
 vidgrab https://youtu.be/dQw4w9WgXcQ
-# Salva em: ~/Downloads/2009-10-25-never-gonna-give-you-up-dQw4w9WgXcQ.mp4
 
-`  ext
-
-**Inspecionar sem baixar:**
-
-```bash
+# Inspecionar antes de baixar (dry run)
 vidgrab https://youtu.be/dQw4w9WgXcQ --dry-run
-# Mostra: tÃ­tulo, resoluÃ§Ã£o, tamanho estimado, container
 
-`  ext
-
-**Limitar resoluÃ§Ã£o:**
-
-```bash
+# Limitar a 1080p
 vidgrab https://youtu.be/dQw4w9WgXcQ --max-height 1080
-# Baixa 1080p se disponÃ­vel, caso contrÃ¡rio a mÃ¡xima abaixo de 1080p
 
-`  ext
+# Salvar em diretório específico
+vidgrab https://youtu.be/dQw4w9WgXcQ --output ~/Videos/raw
 
-**Salvar em outro local:**
-
-```bash
-vidgrab https://youtu.be/dQw4w9WgXcQ --output ~/Videos/archive
-
-`  ext
-
-**Playlist inteira:**
-
-```bash
+# Baixar playlist inteira
 vidgrab "https://youtube.com/playlist?list=PLxxxx" --playlist
-# Expande todos os vÃ­deos e baixa em paralelo
 
-`  ext
+# Múltiplas URLs de um arquivo .txt com 5 workers
+vidgrab --batch urls.txt --workers 5
 
-**MÃºltiplos vÃ­deos em paralelo:**
-
-```bash
-vidgrab https://youtu.be/vid1 https://youtu.be/vid2 https://youtu.be/vid3 --workers 3
-
-`  ext
-
-**Batch com arquivo `.txt`:**
-
-```bash
-# urls.txt
-# Meus vÃ­deos favoritos
-https://youtu.be/vid1
-https://youtu.be/vid2
-
-vidgrab --batch urls.txt --workers 5 --quiet
-# --quiet suprime output (ideal para cron jobs)
-
-`  ext
-
-**ForÃ§ar re-download:**
-
-```bash
+# Forçar re-download mesmo se o arquivo já existir
 vidgrab https://youtu.be/dQw4w9WgXcQ --force
-# Por padrÃ£o, pula se o arquivo jÃ¡ existe
 
-`  ext
+# Conteúdo com restrição de idade
+vidgrab https://youtu.be/dQw4w9WgXcQ --cookies ~/cookies.txt
 
-**ConteÃºdo com age-gate:**
-
-```bash
-# Obtenha cookies do navegador via extensÃ£o:
-# - https://github.com/yt-dlp/yt-dlp/wiki/Download-using-cookies
-vidgrab https://youtu.be/restricted_video --cookies ~/Downloads/cookies.txt
-
-`  ext
-
-**Com metadados JSON:**
-
-```bash
+# Salvar metadados em JSON
 vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
-# Cria: 2009-10-25-never-gonna-give-you-up-dQw4w9WgXcQ.json
+```
 
-`  ext
+#### Arquivo `--batch`
 
-**Auto-complete no shell:**
+Uma URL por linha. Linhas com `#` são ignoradas.
 
-```bash
-vidgrab --install-completion
-# Depois: reabra o terminal e use TAB
-
-`  ext
+```text
+# Meus vídeos
+https://youtu.be/dQw4w9WgXcQ
+https://youtu.be/VIDEO_ID_2
+```
 
 ---
 
 ### Config file
 
-Salve defaults pessoais em `~/.config/vidgrab/config.toml`:
+Salve seus defaults pessoais em `~/.config/vidgrab/config.toml` para não precisar repetir as flags:
 
 ```toml
-# DiretÃ³rio padrÃ£o de saÃ­da
-output = "~/Videos/raw"
-
-# Downloads paralelos
-workers = 5
-
-# Limitar resoluÃ§Ã£o
+output     = "~/Videos/raw"
+workers    = 5
 max_height = 1080
+```
 
-# Escrever metadados JSON automaticamente
-write_json = true
-
-# Arquivo de cookies (para conteÃºdo restrito)
-cookies = "~/Downloads/cookies.txt"
-
-`  ext
-
-**PrecedÃªncia:** CLI args > config file > cÃ³digo defaults
-
-Exemplo:
-
-```bash
-# Sem --output, usa config file
-vidgrab https://youtu.be/x
-# ~/Videos/raw/...
-
-# Com --output, sobrescreve config
-vidgrab https://youtu.be/x --output ~/tmp
-# ~/tmp/...
-
-`  ext
+Flags passadas na linha de comando sempre têm prioridade sobre o config file.
 
 ---
 
-### NomeaÃ§Ã£o de arquivos
+### Nomeação dos arquivos
 
-`  ext
+```text
+{data_upload}-{slug-do-titulo}-{video_id}.{ext}
+```
 
-{upload_date}-{tÃ­tulo-slug}-{video_id}.{ext}
+Exemplo: `20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4`
 
-`  ext
+Com `--write-json`, um sidecar `.json` é criado ao lado do vídeo:
 
-**Exemplo:**
-
-`  ext
-
-20091025-never-gonna-give-you-up-dQw4w9WgXcQ.mp4
-20091025-never-gonna-give-you-up-dQw4w9WgXcQ.json  (se --write-json)
-
-`  ext
-
-**Vantagens:**
-
-- âœ… PrevisÃ­vel e reproducÃ­vel
-
-- âœ… OrdenÃ¡vel por data e nome
-
-- âœ… ID do vÃ­deo no fim para deduplicaÃ§Ã£o
+```json
+{
+  "video_id": "dQw4w9WgXcQ",
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "channel": "Rick Astley",
+  "upload_date": "2009-10-25",
+  "duration_seconds": 212,
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "description": "...",
+  "tags": ["pop", "80s"]
+}
+```
 
 ---
 
-### Container e codecs
+### Container e qualidade
 
-| Streams | Container | Reencode? |
-| --- | --- | --- |
-| H.264 + AAC | MP4 | âŒ CÃ³pia |
-| VP9 + Opus | MKV | âŒ CÃ³pia |
-| AV1 + Opus | MKV | âŒ CÃ³pia |
-
-**O objetivo Ã© sempre: cÃ³pia, nunca recodificaÃ§Ã£o.**
-
----
-
-### ReferÃªncia de opÃ§Ãµes
-
-`  ext
-
-Uso:  vidgrab [OPÃ‡Ã•ES] [URLs]...
-
-Argumentos:
-  [URLs]...                  Uma ou mais URLs do YouTube
-
-OpÃ§Ãµes:
-  -b, --batch FILE           Arquivo .txt com uma URL por linha
-  -o, --output DIR           DiretÃ³rio de saÃ­da (padrÃ£o: ~/Downloads)
-  --max-height INT           Limitar resoluÃ§Ã£o vertical (ex.: 1080)
-  --playlist                 Tratar URLs como playlists
-  -f, --force                Re-download mesmo se existe
-  --cookies FILE             Arquivo de cookies (formato Netscape)
-  --write-json               Salvar metadados em .json
-  -w, --workers INT          Parallelismo (padrÃ£o: 3, mÃ¡x: 8)
-  --dry-run                  Mostrar o que seria baixado
-  -q, --quiet                Suprimir output (exceto erros)
-  -V, --version              Exibir versÃ£o
-  --install-completion       Auto-complete (bash/zsh/fish)
-  --help                     Exibir ajuda
-
-`  ext
-
----
-
-### Troubleshooting
-
-**âŒ "ffmpeg not found in PATH"**
-
-```bash
-# Instale ffmpeg (veja dependÃªncias acima)
-ffmpeg -version  # Verifique se estÃ¡ acessÃ­vel
-
-`  ext
-
-**âŒ "Video unavailable"**
-
-- VÃ­deo foi deletado ou Ã© privado
-
-- RegiÃ£o bloqueada â†’ tente `--cookies`
-
-- Rate-limited â†’ vidgrab faz retry automÃ¡tico, tente novamente
-
-**âŒ "Age restricted"**
-
-```bash
-# FaÃ§a login em uma conta, exporte cookies, e use:
-vidgrab URL --cookies ~/cookies.txt
-
-`  ext
-
-**âŒ "Geo-blocked"**
-
-- VÃ­deo sÃ³ estÃ¡ disponÃ­vel em certas regiÃµes
-
-- SoluÃ§Ã£o: VPN + cookies de uma conta naquela regiÃ£o
-
-**âŒ Arquivo incompleto apÃ³s interrupÃ§Ã£o**
-
-```bash
-# vidgrab detecta e retoma automaticamente na prÃ³xima tentativa
-vidgrab URL  # Retoma de onde parou
-
-`  ext
-
-**âŒ Arquivo jÃ¡ existe, quer re-download**
-
-```bash
-vidgrab URL --force
-
-`  ext
-
----
-
-### Qualidade de cÃ³digo
-
-O projeto segue prÃ¡ticas de cÃ³digo maduro:
-
-| Ferramenta | FunÃ§Ã£o |
+| Streams disponíveis | Container de saída |
 | --- | --- |
-| **Ruff** | Linter + formatter (E, W, F, I, N, UP, B, C4, SIM) |
-| **Pylint** | AnÃ¡lise estÃ¡tica avanÃ§ada |
-| **Mypy** (strict) | Type checking completo com `dict[str, Any]` em fronteiras |
-| **pytest** (120 testes) | Cobertura 92% (`downloader.py` 90%, `cli.py` 93%) |
-| **pre-commit** | Ruff, Pylint, Mypy, Markdownlint em cada commit |
-| **GitHub Actions** | CI/CD: lint, tests, CodeQL, Dependabot, release |
-| **codecov** | RelatÃ³rio de cobertura contÃ­nuo |
+| H.264 + AAC | `mp4` (sem reencode) |
+| VP9 / AV1 + Opus | `mkv` (sem reencode) |
 
-**Commitmente:**
+O objetivo é **nunca recodificar** — apenas mesclar os streams.
 
-- Semantic versioning (v0.1.0 â†’ v0.5.2)
+---
 
-- Conventional commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`)
+### Referência de opções
 
-- CHANGELOG bilÃ­ngue (PT-BR / EN)
+| Opção | Atalho | Descrição |
+| --- | --- | --- |
+| `[URLS]...` | | Uma ou mais URLs do YouTube |
+| `--batch FILE` | `-b` | Arquivo `.txt` com uma URL por linha |
+| `--output DIR` | `-o` | Diretório de saída (padrão: `~/Downloads`) |
+| `--max-height INT` | | Limitar resolução vertical (ex.: `1080`) |
+| `--playlist` | | Tratar URLs como playlists |
+| `--force` | `-f` | Re-download mesmo se o arquivo já existe |
+| `--cookies FILE` | | Arquivo de cookies (formato Netscape) |
+| `--write-json` | | Salvar metadados em `.json` ao lado do vídeo |
+| `--workers INT` | `-w` | Downloads paralelos (padrão: `3`, máx: `8`) |
+| `--dry-run` | | Mostrar o que seria baixado, sem baixar |
+| `--quiet` | `-q` | Suprimir toda saída exceto erros (útil para scripts) |
+| `--version` | `-V` | Exibir versão |
+| `--install-completion` | | Instalar autocomplete no shell atual |
+| `--help` | | Exibir ajuda |
 
-- Branch ruleset: linear history, auto-review, required checks
+---
+
+### Qualidade de código
+
+O projeto usa uma stack completa de qualidade, integrada ao CI e aos pre-commit hooks:
+
+| Ferramenta | Função |
+| --- | --- |
+| **Ruff** | Linter + formatador (9 categorias de regras) |
+| **Pylint** | Análise estática avançada |
+| **Mypy** (strict) | Type checking completo — `dict[str, Any]` em todas as fronteiras com yt-dlp |
+| **pytest + pytest-cov** | 38 testes unitários, cobertura reportada ao Codecov |
+| **pre-commit** | Ruff, Pylint, Mypy e Markdownlint rodando antes de cada commit |
+| **GitHub Actions** | Lint, testes, CodeQL e release automática por tag |
+| **Dependabot** | Atualizações semanais de dependências Python e Actions |
 
 <details>
-<summary><b>Estrutura do projeto</b></summary>
+<summary>Estrutura do projeto</summary>
 
-`  ext
-
+```text
 vidgrab/
-â”œâ”€â”€ __init__.py         # Version
-â”œâ”€â”€ cli.py              # Typer CLI, argument parsing
-â”œâ”€â”€ downloader.py       # Core: parallel, retry, error classification
-â”œâ”€â”€ models.py           # VideoMetadata, DownloadResult (dataclasses)
-â”œâ”€â”€ config.py           # Config file loader (~/.config/vidgrab/config.toml)
-â””â”€â”€ exceptions.py       # Exception hierarchy (VidGrabError, ...)
+├── cli.py          # Interface Typer — parsing de argumentos e orquestração
+├── downloader.py   # Lógica core — parallelismo, retry, classificação de erros
+├── models.py       # VideoMetadata e DownloadResult como dataclasses tipadas
+├── exceptions.py   # Hierarquia de exceções (geo-block, age-gate, unavailable…)
+└── config.py       # Loader de ~/.config/vidgrab/config.toml via tomllib
 
 tests/
-â”œâ”€â”€ test_exceptions.py           # 21 exception tests
-â”œâ”€â”€ test_downloader_helpers.py   # 17 downloader helper tests
-â”œâ”€â”€ test_downloader_download.py  # 12 download orchestration tests
-â”œâ”€â”€ test_cli_handler.py          # 21 CLI handler tests
-â”œâ”€â”€ test_rate_limit.py           # 11 rate-limit / retry tests
-â””â”€â”€ test_main.py                 # 38 model / config tests
-
-.github/
-â”œâ”€â”€ workflows/
-â”‚   â”œâ”€â”€ lint.yml        # Ruff, Pylint, Mypy, pytest, codecov, markdownlint
-â”‚   â”œâ”€â”€ release.yml     # Auto-bump version + git-cliff CHANGELOG
-â”‚   â”œâ”€â”€ codeql.yml      # Security scanning
-â”‚   â””â”€â”€ dependabot.yml  # Auto-updates
-
-Docs:
-â”œâ”€â”€ README.md           # You are here
-â”œâ”€â”€ CHANGELOG.md        # v0.1.0 â€” v0.5.2 (bilÃ­ngue)
-â”œâ”€â”€ CONTRIBUTING.md     # Setup, commit convention, PR process
-â”œâ”€â”€ SECURITY.md         # Vulnerability disclosure policy
-â””â”€â”€ DISCUSSIONS_GUIDE.md # GitHub Discussions setup
-
-`  ext
+├── test_downloader.py  # _slugify, _classify_error, _format_selector, DownloadConfig
+├── test_models.py      # VideoMetadata serialization / deserialization
+├── test_cli.py         # _collect_urls com batch e URLs posicionais
+└── test_config.py      # config.load com TOML válido, inválido e ausente
+```
 
 </details>
-
----
-
-### Contribuindo
-
-Adoramos contribuiÃ§Ãµes! Veja [CONTRIBUTING.md](CONTRIBUTING.md).
-
-**TL;DR:**
-
-```bash
-# 1. Fork + clone
-git clone https://github.com/gsjonio/video_grabber.git
-cd video_grabber
-
-# 2. Setup
-poetry install
-pre-commit install
-
-# 3. Teste + code quality
-poetry run pytest          # 120 testes
-poetry run ruff check .    # Lint
-poetry run pylint vidgrab  # Static analysis
-poetry run mypy vidgrab    # Type check (strict)
-
-# 4. Commit
-git commit -m "feat: add cool feature"
-git push origin feat/cool-feature
-
-# 5. PR
-# â†’ PR â†’ squash-merge â†’ release tag
-
-`  ext
-
----
-
-### Perguntas?
-
-Use [GitHub Discussions](https://github.com/gsjonio/video_grabber/discussions) para:
-
-- â“ DÃºvidas sobre uso
-
-- ðŸ’¡ Ideias de features
-
-- ðŸ“¢ AnÃºncios de releases
-
----
 
 ---
 
 ## English
 
-**vidgrab** is a CLI to download YouTube videos at the **highest technically available quality** â€” no re-encoding, no quality loss. Separate DASH video and audio streams are muxed via FFmpeg in copy mode, perfect for professional editing and raw footage archiving.
+CLI to download YouTube videos at the **highest technically available quality** — separate DASH video and audio streams, muxed via FFmpeg with no re-encoding. Built for raw footage in video editing workflows.
 
-Built for those who care about quality.
-
-### ðŸ“‹ Table of Contents
-
-- [Quick start](#quick-start)
-
-- [How it works](#how-it-works-1)
-
-- [Features](#features-1)
-
-- [Dependencies](#external-dependencies-1)
-
-- [Installation](#installation-1)
-
-- [Examples](#examples-1)
-
+- [How it works](#how-it-works)
+- [Features](#features)
+- [Dependencies](#external-dependencies)
+- [Installation](#installation)
+- [Usage](#usage-1)
 - [Config file](#config-file-1)
-
 - [Options](#option-reference)
-
-- [Troubleshooting](#troubleshooting-1)
-
-- [Code quality](#code-quality-1)
-
-- [Contributing](#contributing-1)
-
----
-
-### Quick start
-
-```bash
-# Install
-pip install vidgrab
-
-# Use
-vidgrab https://youtu.be/dQw4w9WgXcQ
-
-# Inspect before downloading
-vidgrab https://youtu.be/dQw4w9WgXcQ --dry-run
-
-# Batch + 5 workers
-vidgrab --batch urls.txt --workers 5 --quiet && echo "âœ“ Done"
-
-`  ext
+- [Code quality](#code-quality)
 
 ---
 
 ### How it works
 
-Unlike most tools, vidgrab **does not re-encode**. Re-encoded downloads lose quality and waste processing time. Here's the difference:
+Most download tools re-encode to merge video and audio — degrading quality and wasting time. vidgrab does it differently:
 
 ```text
-YouTube
-  â”œâ”€ video stream (H.264 / VP9 / AV1)  â”€â”
-  â””â”€ audio stream (AAC / Opus)          â”€â”´â”€â†’ FFmpeg (copy mode) â”€â†’ MP4 / MKV
+YouTube  →  video stream (H.264 / VP9 / AV1)  ─┐
+         →  audio stream (AAC / Opus)           ─┴→  FFmpeg mux  →  final file
+```
 
-`  ext
-
-Both streams are downloaded in DASH format (highest quality) and muxed **without re-encoding**. Result: a file ready for editing with quality intact.
+Both streams are downloaded separately in DASH format (highest quality available) and muxed in **copy mode** — no transcoding, no quality loss.
 
 ---
 
 ### Features
 
-| Feature | Description | Command |
+| | Feature | Detail |
 | --- | --- | --- |
-| âš¡ **Parallel downloads** | Up to 8 videos simultaneous | `--workers 8` |
-| ðŸ” **Smart retry** | Exponential backoff on rate-limits (HTTP 429) | automatic |
-| ðŸ” **Dry-run** | See title, resolution, size before downloading | `--dry-run` |
-| â¸ **Auto-resume** | Resumes interrupted downloads | automatic |
-| ðŸ“‹ **Batch download** | `.txt` file with one URL per line | `--batch urls.txt` |
-| ðŸŽ¬ **Playlists** | Auto-expands all videos in a playlist | `--playlist` |
-| ðŸ“ **Smart skip** | Detects and skips already-downloaded by ID | automatic |
-| ðŸ“„ **JSON metadata** | Sidecar with title, channel, tags, date | `--write-json` |
-| ðŸ”’ **Restricted content** | Cookie support (age-gate, region) | `--cookies file.txt` |
-| âš™ï¸ **Config file** | Personal defaults in `~/.config/vidgrab/config.toml` | automatic |
-| ðŸ· **Predictable names** | `{date}-{slug}-{video_id}.{ext}` | automatic |
-| âš ï¸ **License alert** | Warns if not Creative Commons | automatic |
-| ðŸš« **Quiet mode** | Suppress output for scripts/pipelines | `--quiet` |
-| ðŸŽ¨ **Shell completion** | Auto-complete for bash/zsh/fish | `--install-completion` |
+| ⚡ | **Parallel downloads** | Up to 8 simultaneous via `--workers` |
+| 🔁 | **Smart retry** | Exponential backoff on rate-limits (up to 5 attempts) |
+| 🔍 | **Dry run** | Preview title, resolution and size before downloading |
+| ⏸ | **Auto resume** | Interrupted downloads pick up where they left off |
+| 📋 | **Batch download** | `.txt` file with one URL per line |
+| 🎬 | **Playlists** | Expands and downloads every video in a playlist |
+| 📁 | **Smart skip** | Detects existing file by video ID and skips automatically |
+| 📄 | **JSON metadata** | Sidecar `.json` with title, channel, date, tags and more |
+| 🔒 | **Restricted content** | Cookie support (Netscape format) for age-gated videos |
+| ⚙️ | **Config file** | Personal defaults at `~/.config/vidgrab/config.toml` |
+| 🏷 | **Predictable names** | `{date}-{slug}-{video_id}.{ext}` on every download |
+| ⚠️ | **License warning** | Alerts when a video is not under a Creative Commons license |
 
 ---
 
 ### External dependencies
 
-| Tool | For | Install |
+| Tool | Purpose | How to install |
 | --- | --- | --- |
 | **Python 3.11+** | Runtime | [python.org](https://www.python.org/downloads/) |
-| **ffmpeg** | Mux streams (critical) | See below |
-| **yt-dlp** | Download (automatic) | via Poetry |
-| **Deno** *(opt)* | 4K/HDR (better extraction) | See below |
+| **ffmpeg** | Merge video + audio streams | See below |
+| **yt-dlp** | Download engine | Installed automatically via Poetry |
+| **Deno** *(optional)* | Access all YouTube formats including 4K/HDR | See below |
 
 <details>
-<summary><b>Installing ffmpeg</b></summary>
+<summary>Installing ffmpeg</summary>
 
-**Windows:**
+#### Windows
 
 ```bash
 winget install ffmpeg
+```
 
-`  ext
-
-**macOS:**
+#### macOS
 
 ```bash
 brew install ffmpeg
+```
 
-`  ext
-
-**Linux (Debian/Ubuntu):**
+#### Linux (Debian/Ubuntu)
 
 ```bash
 sudo apt install ffmpeg
+```
 
-`  ext
-
-Or download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) and add to `PATH`.
-
-Verify: `ffmpeg -version`
+Or grab the binary from <https://ffmpeg.org/download.html> and add it to your `PATH`.
 
 </details>
 
 <details>
-<summary><b>Installing Deno (recommended for 4K/HDR)</b></summary>
+<summary>Installing Deno (recommended for 4K/HDR)</summary>
 
-Without Deno, yt-dlp uses a fallback that may miss 4K formats. With Deno, extraction is complete.
+Without Deno, yt-dlp falls back to an alternative extraction method that may not expose all available formats. With Deno, extraction is complete.
 
-**Windows:**
+#### Windows
 
 ```bash
 winget install DenoLand.Deno
+```
 
-`  ext
-
-**macOS:**
+#### macOS
 
 ```bash
 brew install deno
+```
 
-`  ext
-
-**Linux:**
+#### Linux
 
 ```bash
 curl -fsSL https://deno.land/install.sh | sh
-
-`  ext
-
-Verify: `deno --version`
+```
 
 </details>
 
@@ -734,363 +390,158 @@ Verify: `deno --version`
 
 ### Installation
 
-<details>
-<summary><b>Via pip (recommended)</b></summary>
-
-```bash
-pip install vidgrab
-
-`  ext
-
-Then install ffmpeg as shown above.
-
-</details>
-
-<details>
-<summary><b>Via Poetry (development)</b></summary>
-
 ```bash
 git clone https://github.com/gsjonio/video_grabber.git
 cd video_grabber
 poetry install
-poetry run vidgrab --help
-
-`  ext
-
-</details>
-
-<details>
-<summary><b>Via pipx (isolated)</b></summary>
-
-```bash
-pipx install vidgrab
-
-`  ext
-
-Great if you want dependency isolation.
-
-</details>
+```
 
 ---
 
-### Examples
-
-**Basic â€” single video:**
+### Usage
 
 ```bash
+# Single video — maximum quality
 vidgrab https://youtu.be/dQw4w9WgXcQ
-# Saves to: ~/Downloads/2009-10-25-never-gonna-give-you-up-dQw4w9WgXcQ.mp4
 
-`  ext
-
-**Inspect without downloading:**
-
-```bash
+# Inspect before downloading (dry run)
 vidgrab https://youtu.be/dQw4w9WgXcQ --dry-run
-# Shows: title, resolution, estimated size, container
 
-`  ext
-
-**Limit resolution:**
-
-```bash
+# Cap at 1080p
 vidgrab https://youtu.be/dQw4w9WgXcQ --max-height 1080
-# Downloads 1080p if available, otherwise highest below 1080p
 
-`  ext
+# Save to a specific directory
+vidgrab https://youtu.be/dQw4w9WgXcQ --output ~/Videos/raw
 
-**Save to custom location:**
-
-```bash
-vidgrab https://youtu.be/dQw4w9WgXcQ --output ~/Videos/archive
-
-`  ext
-
-**Entire playlist:**
-
-```bash
+# Download an entire playlist
 vidgrab "https://youtube.com/playlist?list=PLxxxx" --playlist
-# Expands all videos and downloads in parallel
 
-`  ext
+# Download from a .txt file with 5 parallel workers
+vidgrab --batch urls.txt --workers 5
 
-**Multiple videos in parallel:**
-
-```bash
-vidgrab https://youtu.be/vid1 https://youtu.be/vid2 https://youtu.be/vid3 --workers 3
-
-`  ext
-
-**Batch from `.txt` file:**
-
-```bash
-# urls.txt
-# My favorite videos
-https://youtu.be/vid1
-https://youtu.be/vid2
-
-vidgrab --batch urls.txt --workers 5 --quiet
-# --quiet suppresses output (ideal for cron jobs)
-
-`  ext
-
-**Force re-download:**
-
-```bash
+# Force re-download even if the file already exists
 vidgrab https://youtu.be/dQw4w9WgXcQ --force
-# By default, skips if file already exists
 
-`  ext
+# Age-restricted content
+vidgrab https://youtu.be/dQw4w9WgXcQ --cookies ~/cookies.txt
 
-**Age-restricted content:**
-
-```bash
-# Get cookies from browser via extension:
-# - https://github.com/yt-dlp/yt-dlp/wiki/Download-using-cookies
-vidgrab https://youtu.be/restricted_video --cookies ~/Downloads/cookies.txt
-
-`  ext
-
-**With JSON metadata:**
-
-```bash
+# Save metadata as JSON
 vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
-# Creates: 2009-10-25-never-gonna-give-you-up-dQw4w9WgXcQ.json
+```
 
-`  ext
+#### `--batch` file format
 
-**Shell auto-complete:**
+One URL per line. Lines starting with `#` are ignored.
 
-```bash
-vidgrab --install-completion
-# Then: reopen terminal and press TAB
-
-`  ext
+```text
+# My videos
+https://youtu.be/dQw4w9WgXcQ
+https://youtu.be/VIDEO_ID_2
+```
 
 ---
 
 ### Config file
 
-Save personal defaults in `~/.config/vidgrab/config.toml`:
+Save your personal defaults at `~/.config/vidgrab/config.toml` to avoid repeating flags:
 
 ```toml
-# Default output directory
-output = "~/Videos/raw"
-
-# Parallel downloads
-workers = 5
-
-# Limit resolution
+output     = "~/Videos/raw"
+workers    = 5
 max_height = 1080
+```
 
-# Auto-write JSON metadata
-write_json = true
-
-# Cookies file for restricted content
-cookies = "~/Downloads/cookies.txt"
-
-`  ext
-
-**Precedence:** CLI args > config file > code defaults
-
-Example:
-
-```bash
-# Without --output, uses config
-vidgrab https://youtu.be/x
-# ~/Videos/raw/...
-
-# With --output, overrides config
-vidgrab https://youtu.be/x --output ~/tmp
-# ~/tmp/...
-
-`  ext
+Flags passed on the command line always take precedence over the config file.
 
 ---
 
-### Filename format
+### Output filename pattern
 
-`  ext
-
+```text
 {upload_date}-{title-slug}-{video_id}.{ext}
+```
 
-`  ext
+Example: `20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4`
 
-**Example:**
+With `--write-json`, a sidecar `.json` is saved next to each video:
 
-`  ext
-
-20091025-never-gonna-give-you-up-dQw4w9WgXcQ.mp4
-20091025-never-gonna-give-you-up-dQw4w9WgXcQ.json  (if --write-json)
-
-`  ext
-
-**Advantages:**
-
-- âœ… Predictable and reproducible
-
-- âœ… Sortable by date and name
-
-- âœ… Video ID at end for deduplication
+```json
+{
+  "video_id": "dQw4w9WgXcQ",
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "channel": "Rick Astley",
+  "upload_date": "2009-10-25",
+  "duration_seconds": 212,
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "description": "...",
+  "tags": ["pop", "80s"]
+}
+```
 
 ---
 
-### Container and codecs
+### Container and quality
 
-| Streams | Container | Re-encode? |
-| --- | --- | --- |
-| H.264 + AAC | MP4 | âŒ Copy |
-| VP9 + Opus | MKV | âŒ Copy |
-| AV1 + Opus | MKV | âŒ Copy |
+| Available streams | Output container |
+| --- | --- |
+| H.264 + AAC | `mp4` (no re-encode) |
+| VP9 / AV1 + Opus | `mkv` (no re-encode) |
 
-**Always copy, never re-encode.**
+The goal is to **never re-encode** — only mux the streams.
 
 ---
 
 ### Option reference
 
-`  ext
-
-Usage:  vidgrab [OPTIONS] [URLs]...
-
-Arguments:
-  [URLs]...                  One or more YouTube URLs
-
-Options:
-  -b, --batch FILE           .txt file with one URL per line
-  -o, --output DIR           Output directory (default: ~/Downloads)
-  --max-height INT           Limit resolution height (e.g., 1080)
-  --playlist                 Treat URLs as playlists
-  -f, --force                Re-download even if exists
-  --cookies FILE             Cookies file (Netscape format)
-  --write-json               Save metadata as .json
-  -w, --workers INT          Parallelism (default: 3, max: 8)
-  --dry-run                  Show what would be downloaded
-  -q, --quiet                Suppress output (except errors)
-  -V, --version              Show version
-  --install-completion       Shell auto-complete (bash/zsh/fish)
-  --help                     Show help
-
-`  ext
-
----
-
-### Troubleshooting
-
-**âŒ "ffmpeg not found in PATH"**
-
-```bash
-# Install ffmpeg (see dependencies above)
-ffmpeg -version  # Verify it's accessible
-
-`  ext
-
-**âŒ "Video unavailable"**
-
-- Video was deleted or is private
-
-- Region blocked â†’ try `--cookies`
-
-- Rate-limited â†’ vidgrab retries automatically, try again
-
-**âŒ "Age restricted"**
-
-```bash
-# Sign in to an account, export cookies, then:
-vidgrab URL --cookies ~/cookies.txt
-
-`  ext
-
-**âŒ "Geo-blocked"**
-
-- Video only available in certain regions
-
-- Solution: VPN + cookies from an account in that region
-
-**âŒ Incomplete file after interruption**
-
-```bash
-# vidgrab detects and resumes automatically on retry
-vidgrab URL  # Resumes from where it stopped
-
-`  ext
-
-**âŒ File exists, want to re-download**
-
-```bash
-vidgrab URL --force
-
-`  ext
+| Option | Short | Description |
+| --- | --- | --- |
+| `[URLS]...` | | One or more YouTube URLs |
+| `--batch FILE` | `-b` | `.txt` file with one URL per line |
+| `--output DIR` | `-o` | Output directory (default: `~/Downloads`) |
+| `--max-height INT` | | Cap vertical resolution (e.g. `1080`) |
+| `--playlist` | | Treat URLs as playlists |
+| `--force` | `-f` | Re-download even if the file already exists |
+| `--cookies FILE` | | Cookies file (Netscape format) |
+| `--write-json` | | Save metadata as a `.json` sidecar next to the video |
+| `--workers INT` | `-w` | Parallel downloads (default: `3`, max: `8`) |
+| `--dry-run` | | Show what would be downloaded without downloading |
+| `--quiet` | `-q` | Suppress all output except errors (useful for scripting) |
+| `--version` | `-V` | Show version and exit |
+| `--install-completion` | | Install shell autocomplete for the current shell |
+| `--help` | | Show help |
 
 ---
 
 ### Code quality
 
-The project follows mature code practices:
+The project uses a full quality stack, integrated into CI and pre-commit hooks:
 
-| Tool | Function |
+| Tool | Role |
 | --- | --- |
-| **Ruff** | Linter + formatter (E, W, F, I, N, UP, B, C4, SIM) |
+| **Ruff** | Linter + formatter (9 rule categories) |
 | **Pylint** | Advanced static analysis |
-| **Mypy** (strict) | Full type checking with `dict[str, Any]` at boundaries |
-| **pytest** (120 tests) | 92% coverage (`downloader.py` 90%, `cli.py` 93%) |
-| **pre-commit** | Ruff, Pylint, Mypy, Markdownlint on every commit |
-| **GitHub Actions** | CI/CD: lint, tests, CodeQL, Dependabot, release |
-| **codecov** | Continuous coverage reporting |
+| **Mypy** (strict) | Full type checking — `dict[str, Any]` at every yt-dlp boundary |
+| **pytest + pytest-cov** | 38 unit tests, coverage reported to Codecov |
+| **pre-commit** | Ruff, Pylint, Mypy and Markdownlint run before every commit |
+| **GitHub Actions** | Lint, tests, CodeQL and automatic release on tag push |
+| **Dependabot** | Weekly updates for Python deps and Actions |
 
-**Commitment:**
+<details>
+<summary>Project structure</summary>
 
-- Semantic versioning (v0.1.0 â†’ v0.5.2)
+```text
+vidgrab/
+├── cli.py          # Typer interface — argument parsing and orchestration
+├── downloader.py   # Core logic — parallelism, retry, typed error classification
+├── models.py       # VideoMetadata and DownloadResult as typed dataclasses
+├── exceptions.py   # Exception hierarchy (geo-block, age-gate, unavailable…)
+└── config.py       # ~/.config/vidgrab/config.toml loader via tomllib
 
-- Conventional commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`)
+tests/
+├── test_downloader.py  # _slugify, _classify_error, _format_selector, DownloadConfig
+├── test_models.py      # VideoMetadata serialization / deserialization
+├── test_cli.py         # _collect_urls with batch and positional URLs
+└── test_config.py      # config.load with valid, invalid and missing TOML
+```
 
-- Bilingual CHANGELOG (PT-BR / EN)
-
-- Branch ruleset: linear history, auto-review, required checks
-
----
-
-### Contributing
-
-We love contributions! See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-**TL;DR:**
-
-```bash
-# 1. Fork + clone
-git clone https://github.com/gsjonio/video_grabber.git
-cd video_grabber
-
-# 2. Setup
-poetry install
-pre-commit install
-
-# 3. Test + quality
-poetry run pytest          # 120 tests
-poetry run ruff check .    # Lint
-poetry run pylint vidgrab  # Static analysis
-poetry run mypy vidgrab    # Type check (strict)
-
-# 4. Commit
-git commit -m "feat: add cool feature"
-git push origin feat/cool-feature
-
-# 5. PR
-# â†’ PR â†’ squash-merge â†’ release tag
-
-`  ext
-
----
-
-### Questions?
-
-Use [GitHub Discussions](https://github.com/gsjonio/video_grabber/discussions) for:
-
-- â“ Usage questions
-
-- ðŸ’¡ Feature ideas
-
-- ðŸ“¢ Release announcements
-
-
-
+</details>
