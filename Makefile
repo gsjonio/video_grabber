@@ -1,4 +1,4 @@
-.PHONY: help install test lint mypy pylint ruff fmt clean release
+.PHONY: help install test lint mypy pylint ruff fmt clean release build publish
 
 help:
 	@echo "vidgrab development commands"
@@ -11,6 +11,8 @@ help:
 	@echo "  make pylint           Lint with pylint"
 	@echo "  make ruff             Lint with ruff"
 	@echo "  make clean            Remove cache and build artifacts"
+	@echo "  make build            Build distribution (wheel + sdist)"
+	@echo "  make publish          Publish to PyPI"
 	@echo "  make release          Bump version, update CHANGELOG, create tag"
 	@echo ""
 
@@ -41,6 +43,19 @@ clean:
 	rm -rf .pytest_cache .mypy_cache .ruff_cache htmlcov coverage.xml
 	rm -rf build dist *.egg-info
 
+build: clean
+	poetry build
+	@echo ""
+	@echo "✓ Built successfully in dist/"
+	@ls -lh dist/
+
+publish: build
+	@echo ""
+	@echo "Publishing to PyPI..."
+	poetry publish
+	@echo ""
+	@echo "✓ Published! Check: https://pypi.org/project/vidgrab/"
+
 release:
 	@echo "Release workflow:"
 	@echo "1. Update version in vidgrab/__init__.py and pyproject.toml"
@@ -48,5 +63,6 @@ release:
 	@echo "3. git add <files> && git commit -m 'chore: bump to vX.Y.Z'"
 	@echo "4. git tag -a vX.Y.Z -m 'vX.Y.Z — <description>'"
 	@echo "5. git push origin main --tags"
+	@echo "6. make publish"
 	@echo ""
 	@echo "CI will automatically create the GitHub Release from the tag."

@@ -122,10 +122,25 @@ curl -fsSL https://deno.land/install.sh | sh
 
 ### Instalação
 
+**Via pip (recomendado):**
+
+```bash
+pip install vidgrab
+```
+
+**Via pipx (isolado):**
+
+```bash
+pipx install vidgrab
+```
+
+**From source (desenvolvimento):**
+
 ```bash
 git clone https://github.com/gsjonio/video_grabber.git
 cd video_grabber
 poetry install
+poetry run vidgrab --help
 ```
 
 ---
