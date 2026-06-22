@@ -1,5 +1,25 @@
 # Changelog
 
+## [v0.5.0] — 2026-06-21
+
+### 🧪 Testes / Tests
+
+- 38 novos testes para exceções, `expand_playlists`, `_resolve_output_path`, `_find_existing`, `_build_ydl_opts`
+  — elevou coverage de 66% para 76% /
+  38 new tests for exceptions, `expand_playlists`, `_resolve_output_path`, `_find_existing`, `_build_ydl_opts`
+  — raised coverage from 66% to 76%
+
+### Cobertura / Coverage
+
+- **exceptions.py**: 100% ✅
+- **models.py**: 100% ✅
+- **config.py**: 100% ✅
+- **downloader.py**: 79% (↑ from 67%)
+- **cli.py**: 43% (core handler still needs CLI-specific tests)
+- **Total**: 76% (↑ from 66%)
+
+---
+
 ## [v0.4.3] — 2026-06-21
 
 ### 🧪 Testes / Tests
