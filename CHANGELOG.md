@@ -1,5 +1,30 @@
 # Changelog
 
+## [v0.4.3] — 2026-06-21
+
+### 🧪 Testes / Tests
+
+- 11 novos testes para rate-limit handling e exponential backoff
+  — validam que o retry funciona em HTTP 429 e falha rápido em erros não-retryáveis /
+  11 new tests for rate-limit handling and exponential backoff
+  — validate that retry works on HTTP 429 and fails fast on non-retryable errors
+
+### 📚 Documentação / Documentation
+
+- `SECURITY.md` adicionado com política de disclosure responsável de vulnerabilidades /
+  `SECURITY.md` added with responsible vulnerability disclosure policy
+- `Makefile` com targets: `make test`, `make lint`, `make fmt`, `make clean` /
+  `Makefile` with targets: `make test`, `make lint`, `make fmt`, `make clean`
+
+### 🔧 Chore
+
+- `git-cliff` adicionado para geração automática de CHANGELOG a partir dos commits
+  — reduz erro manual e força disciplina de commits /
+  `git-cliff` added for automatic CHANGELOG generation from commits
+  — reduces manual error and enforces commit discipline
+
+---
+
 ## [v0.4.2] — 2026-06-21
 
 ### 🔧 Chore

@@ -1,0 +1,82 @@
+[changelog]
+# Template para gerar CHANGELOG.md
+body = """
+{% if version %}\
+    ## [{{ version }}] — {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% if previous %}\
+    {% raw %}\
+    {% if commit_id %}
+    [{{ commit_id | truncate(length=7, end="") }}](
+    {%- endraw %}
+    https://github.com/gsjonio/video_grabber/compare/{{ previous.version }}...
+    {%- if version %}{{ version }}{% else %}HEAD{% endif %})
+    {% raw %} — {% endraw %}
+    {% endif %}
+    {% endraw %}\
+{% endif %}\
+### ✨ Novas funcionalidades / New features
+{% for commit in commits | filter(attribute="group", value="feat") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### 🐛 Correções / Bug fixes
+{% for commit in commits | filter(attribute="group", value="fix") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### 📚 Documentação / Documentation
+{% for commit in commits | filter(attribute="group", value="docs") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### 🔧 Chore
+{% for commit in commits | filter(attribute="group", value="chore") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### ⚙️ CI
+{% for commit in commits | filter(attribute="group", value="ci") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### 🧪 Tests
+{% for commit in commits | filter(attribute="group", value="test") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+
+### ♻️ Refactoring
+{% for commit in commits | filter(attribute="group", value="refactor") %}
+    - {{ commit.message | split(pat="\n") | first | trim }}
+{%- endfor %}
+"""
+
+# Remover linhas vazias entre seções
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+commit_parsers = [
+    { message = "^feat", group = "feat" },
+    { message = "^fix", group = "fix" },
+    { message = "^doc", group = "docs" },
+    { message = "^docs", group = "docs" },
+    { message = "^chore", group = "chore" },
+    { message = "^ci", group = "ci" },
+    { message = "^test", group = "test" },
+    { message = "^refactor", group = "refactor" },
+    { message = "^style", group = "style" },
+    { message = "^perf", group = "perf" },
+]
+protect_breaking_commits = false
+filter_commits = false
+topo_order = false
+limit_commits = 1000
+skip_tags = "v0.1.*|v0.2.0|v0.2.1"
+ignore_tags = ""
+date_order = false
+sort_commits = "oldest"
