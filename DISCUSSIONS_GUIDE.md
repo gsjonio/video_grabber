@@ -1,6 +1,8 @@
 # Enable GitHub Discussions
 
-## Quick Setup (2 minutes)
+## Quick Setup
+
+2 minutes:
 
 1. Go to your repo → **Settings** → **Features**
 2. Check the box: ✅ **Discussions**
@@ -12,12 +14,14 @@
 ## What Goes Where
 
 ### 📢 Discussions (Q&A, Ideas)
+
 - "How do I configure X?"
 - "Can we support feature Y?"
 - "Best practices for Z?"
 - Feature requests and discussions
 
 ### 🐛 Issues (Bugs, Tasks)
+
 - Broken behavior
 - Crashes / errors
 - Feature implementation tasks
@@ -53,6 +57,7 @@ Have a question about vidgrab? Use [GitHub Discussions](https://github.com/gsjon
 Add issue template to suggest Discussions for Q&A:
 
 **`.github/ISSUE_TEMPLATE/question.md`**:
+
 ```markdown
 ---
 name: Question
