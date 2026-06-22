@@ -27,7 +27,7 @@ O que você esperava que acontecesse.
 What actually happened. Include the full error output.
 O que realmente aconteceu. Inclua a saída completa do erro.
 
-```
+```text
 <paste output here>
 ```
 
