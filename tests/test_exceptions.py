@@ -108,7 +108,8 @@ class TestFfmpegNotFoundError:
 
     def test_message_includes_download_link(self) -> None:
         err = FfmpegNotFoundError()
-        assert "ffmpeg.org" in str(err).lower() or "download" in str(err).lower()
+        err_msg = str(err).lower()
+        assert ("ffmpeg.org" in err_msg or "download" in err_msg)
 
     def test_is_vidgrab_error(self) -> None:
         err = FfmpegNotFoundError()
