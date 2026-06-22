@@ -13,8 +13,8 @@
 
 - `SECURITY.md` adicionado com política de disclosure responsável de vulnerabilidades /
   `SECURITY.md` added with responsible vulnerability disclosure policy
-- `Makefile` com targets: `make test`, `make lint`, `make fmt`, `make clean` /
-  `Makefile` with targets: `make test`, `make lint`, `make fmt`, `make clean`
+- `Makefile` adicionado para simplificar comandos de desenvolvimento /
+  `Makefile` added to simplify development commands
 
 ### 🔧 Chore
 
