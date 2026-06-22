@@ -39,10 +39,15 @@ class TestErrorClassification:
 class TestRetryLogic:
     """Test that rate-limited downloads are retried with exponential backoff."""
 
+    @patch("vidgrab.downloader._check_ffmpeg")
     @patch("vidgrab.downloader.yt_dlp.YoutubeDL")
     @patch("vidgrab.downloader.time.sleep")
     def test_retries_on_rate_limit(
-        self, mock_sleep: MagicMock, mock_ydl_class: MagicMock, tmp_path
+        self,
+        mock_sleep: MagicMock,
+        mock_ydl_class: MagicMock,
+        mock_check_ffmpeg: MagicMock,
+        tmp_path,
     ) -> None:
         """Simulate 429 on first 2 attempts, success on 3rd."""
         mock_ydl = MagicMock()
@@ -77,10 +82,15 @@ class TestRetryLogic:
         # extract_info should have been called 3 times (2 failures + 1 success)
         assert mock_ydl.extract_info.call_count == 3
 
+    @patch("vidgrab.downloader._check_ffmpeg")
     @patch("vidgrab.downloader._run_ydl")
     @patch("vidgrab.downloader.time.sleep")
     def test_rate_limit_all_retries_exhausted(
-        self, mock_sleep: MagicMock, mock_run_ydl: MagicMock, tmp_path
+        self,
+        mock_sleep: MagicMock,
+        mock_run_ydl: MagicMock,
+        mock_check_ffmpeg: MagicMock,
+        tmp_path,
     ) -> None:
         """Rate limit on all 5 attempts should raise DownloadError."""
         mock_run_ydl.side_effect = VidGrabDownloadError("test", reason="HTTP Error 429")
@@ -96,9 +106,10 @@ class TestRetryLogic:
         # Backoff sleeps: 2, 4, 8, 16 (4 sleeps for 5 attempts)
         assert mock_sleep.call_count == 4
 
+    @patch("vidgrab.downloader._check_ffmpeg")
     @patch("vidgrab.downloader._run_ydl")
     def test_non_rate_limit_error_does_not_retry(
-        self, mock_run_ydl: MagicMock, tmp_path
+        self, mock_run_ydl: MagicMock, mock_check_ffmpeg: MagicMock, tmp_path
     ) -> None:
         """Non-rate-limit errors should fail immediately without retry."""
         mock_run_ydl.side_effect = VidGrabDownloadError("test", reason="Video unavailable")
@@ -112,10 +123,15 @@ class TestRetryLogic:
         # Should not retry — only 1 attempt
         assert mock_run_ydl.call_count == 1
 
+    @patch("vidgrab.downloader._check_ffmpeg")
     @patch("vidgrab.downloader.yt_dlp.YoutubeDL")
     @patch("vidgrab.downloader.time.sleep")
     def test_exponential_backoff_delays(
-        self, mock_sleep: MagicMock, mock_ydl_class: MagicMock, tmp_path
+        self,
+        mock_sleep: MagicMock,
+        mock_ydl_class: MagicMock,
+        mock_check_ffmpeg: MagicMock,
+        tmp_path,
     ) -> None:
         """Verify exponential backoff: 2s, 4s, 8s, 16s."""
         mock_ydl = MagicMock()
