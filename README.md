@@ -143,6 +143,32 @@ poetry install
 poetry run vidgrab --help
 ```
 
+**Automated installers:**
+
+- **Linux/macOS:** `bash install.sh`
+- **Windows:** `install.bat`
+
+These scripts check for Python 3.11+ and ffmpeg, then install via pip.
+
+---
+
+### Publicando no PyPI
+
+Quer distribuir vidgrab para mais pessoas via `pip install vidgrab`?
+
+Veja [PUBLISH.md](PUBLISH.md) para instruções completas:
+
+```bash
+# Build
+make build
+
+# Configure token PyPI
+poetry config pypi-token.pypi "seu-token"
+
+# Publish
+make publish
+```
+
 ---
 
 ### Uso
@@ -405,10 +431,51 @@ curl -fsSL https://deno.land/install.sh | sh
 
 ### Installation
 
+**Via pip (recommended):**
+
+```bash
+pip install vidgrab
+```
+
+**Via pipx (isolated):**
+
+```bash
+pipx install vidgrab
+```
+
+**From source (development):**
+
 ```bash
 git clone https://github.com/gsjonio/video_grabber.git
 cd video_grabber
 poetry install
+poetry run vidgrab --help
+```
+
+**Automated installers:**
+
+- **Linux/macOS:** `bash install.sh`
+- **Windows:** `install.bat`
+
+These scripts check for Python 3.11+ and ffmpeg, then install via pip.
+
+---
+
+### Publishing to PyPI
+
+Want to distribute vidgrab via `pip install vidgrab`?
+
+See [PUBLISH.md](PUBLISH.md) for complete instructions:
+
+```bash
+# Build
+make build
+
+# Configure PyPI token
+poetry config pypi-token.pypi "your-token"
+
+# Publish
+make publish
 ```
 
 ---
