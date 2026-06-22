@@ -152,25 +152,6 @@ These scripts check for Python 3.11+ and ffmpeg, then install via pip.
 
 ---
 
-### Publicando no PyPI
-
-Quer distribuir vidgrab para mais pessoas via `pip install vidgrab`?
-
-Veja [PUBLISH.md](PUBLISH.md) para instruções completas:
-
-```bash
-# Build
-make build
-
-# Configure token PyPI
-poetry config pypi-token.pypi "seu-token"
-
-# Publish
-make publish
-```
-
----
-
 ### Uso
 
 ```bash
@@ -458,25 +439,6 @@ poetry run vidgrab --help
 - **Windows:** `install.bat`
 
 These scripts check for Python 3.11+ and ffmpeg, then install via pip.
-
----
-
-### Publishing to PyPI
-
-Want to distribute vidgrab via `pip install vidgrab`?
-
-See [PUBLISH.md](PUBLISH.md) for complete instructions:
-
-```bash
-# Build
-make build
-
-# Configure PyPI token
-poetry config pypi-token.pypi "your-token"
-
-# Publish
-make publish
-```
 
 ---
 
