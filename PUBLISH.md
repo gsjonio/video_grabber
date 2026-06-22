@@ -55,43 +55,38 @@ vidgrab --help
 
 ## After Publishing
 
-Update README.md to show:
+Update README.md installation section to:
 
-```markdown
-## Installation
-
+```text
 ### Via pip (recommended)
 
-```bash
 pip install vidgrab
-```
 
 ### Via pipx (isolated)
 
-```bash
 pipx install vidgrab
-```
 
 ### From source (development)
 
-```bash
 git clone https://github.com/gsjonio/video_grabber.git
 cd video_grabber
 poetry install
 poetry run vidgrab --help
 ```
-```
 
 ## Troubleshooting
 
-**"InvalidDistribution: Invalid value for requires_dist"**
-- Run `poetry lock --refresh` then `poetry build` again
+### InvalidDistribution
 
-**"ERROR Repository https://upload.pypi.org/legacy/ is not configured"**
-- Use `poetry config pypi-token.pypi "your-token"` instead of auth
+Run `poetry lock --refresh` then `poetry build` again
 
-**"401 Invalid or expired authentication token"**
-- Check your token at https://pypi.org/manage/account/#api-tokens
+### Repository not configured
+
+Use `poetry config pypi-token.pypi "your-token"` instead of auth
+
+### Invalid or expired authentication token
+
+- Check your token at [pypi.org/manage/account](https://pypi.org/manage/account/#api-tokens)
 - Regenerate if needed
 
 ## Release Checklist
@@ -106,6 +101,6 @@ poetry run vidgrab --help
 
 ## Links
 
-- PyPI Project: https://pypi.org/project/vidgrab/
-- PyPI Docs: https://packaging.python.org/tutorials/packaging-projects/
-- Poetry Docs: https://python-poetry.org/docs/repositories/
+- [PyPI Project](https://pypi.org/project/vidgrab/)
+- [PyPI Docs](https://packaging.python.org/tutorials/packaging-projects/)
+- [Poetry Docs](https://python-poetry.org/docs/repositories/)
