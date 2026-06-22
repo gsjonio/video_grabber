@@ -231,6 +231,27 @@ def _print_summary(results: list[DownloadResult], *, quiet: bool = False) -> boo
 
 def main() -> None:
     """Package entry point."""
+    import sys
+
+    # Show friendly intro when run without arguments
+    if len(sys.argv) == 1:
+        _CONSOLE.print(
+            "[bold cyan]vidgrab[/bold cyan] — Download YouTube videos at maximum quality\n"
+        )
+        _CONSOLE.print("[dim]Usage:[/dim]")
+        _CONSOLE.print("  vidgrab <URL>              Download a single video")
+        _CONSOLE.print("  vidgrab --batch urls.txt   Batch download from file")
+        _CONSOLE.print("  vidgrab --help             Show all options")
+        _CONSOLE.print("  vidgrab --install-completion  Install shell auto-complete\n")
+        _CONSOLE.print("[dim]Examples:[/dim]")
+        _CONSOLE.print("  vidgrab https://youtu.be/dQw4w9WgXcQ")
+        _CONSOLE.print("  vidgrab https://youtu.be/x --dry-run")
+        _CONSOLE.print("  vidgrab https://youtu.be/x --max-height 1080")
+        _CONSOLE.print(
+            "\n[bold]>>> Run [cyan]vidgrab --help[/cyan] for all options[/bold]"
+        )
+        sys.exit(0)
+
     app()
 
 
