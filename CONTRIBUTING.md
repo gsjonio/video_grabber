@@ -57,6 +57,21 @@ Este projeto segue [Conventional Commits](https://www.conventionalcommits.org/):
 | `test:` | Adição ou correção de testes → sem bump |
 | `refactor:` | Refatoração sem mudança de comportamento → sem bump |
 
+### Configurando Codecov (maintainers only)
+
+Para que o badge de cobertura funcione, você precisa conectar o repositório ao Codecov:
+
+1. Acesse [codecov.io](https://codecov.io) e faça login com sua conta GitHub
+2. Autorize o app Codecov a acessar seus repositórios
+3. Clique em "Add new repository" e selecione `gsjonio/video_grabber`
+4. Copie o token gerado (ou gere um novo em Settings)
+5. No repositório GitHub, vá para **Settings → Secrets and variables → Actions**
+6. Clique em "New repository secret" e adicione:
+   - **Name**: `CODECOV_TOKEN`
+   - **Value**: `<token_do_codecov>`
+
+Após isso, o badge de cobertura será atualizado automaticamente em cada push.
+
 ### Abrindo um PR
 
 1. Crie um branch a partir de `main`: `git checkout -b feat/minha-feature`
@@ -120,6 +135,21 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 | `chore:` | Internal maintenance (deps, version) → no bump |
 | `test:` | Adding or fixing tests → no bump |
 | `refactor:` | Refactor without behaviour change → no bump |
+
+### Setting up Codecov (maintainers only)
+
+To enable the coverage badge, you need to connect the repository to Codecov:
+
+1. Go to [codecov.io](https://codecov.io) and sign in with your GitHub account
+2. Authorize the Codecov app to access your repositories
+3. Click "Add new repository" and select `gsjonio/video_grabber`
+4. Copy the generated token (or create a new one in Settings)
+5. In the GitHub repository, go to **Settings → Secrets and variables → Actions**
+6. Click "New repository secret" and add:
+   - **Name**: `CODECOV_TOKEN`
+   - **Value**: `<your_codecov_token>`
+
+After that, the coverage badge will update automatically on every push.
 
 ### Opening a PR
 

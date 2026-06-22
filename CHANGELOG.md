@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.4.2] — 2026-06-21
+
+### 🔧 Chore
+
+- Codecov configurado com `codecov.yml` e autenticação via `CODECOV_TOKEN` secret /
+  Codecov configured with `codecov.yml` and authentication via `CODECOV_TOKEN` secret
+- CONTRIBUTING.md atualizado com instruções de setup do Codecov para maintainers /
+  CONTRIBUTING.md updated with Codecov setup instructions for maintainers
+
+---
+
 ## [v0.4.1] — 2026-06-21
 
 ### 📚 Documentação / Documentation

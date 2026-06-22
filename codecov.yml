@@ -1,0 +1,18 @@
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+ignore:
+  - "tests"
+  - "**/__pycache__"
+
+flags:
+  unittests:
+    paths:
+      - vidgrab
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,tree,footer"
+  behavior: default
