@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -231,8 +232,6 @@ def _print_summary(results: list[DownloadResult], *, quiet: bool = False) -> boo
 
 def main() -> None:
     """Package entry point."""
-    import sys
-
     # Show friendly intro when run without arguments
     if len(sys.argv) == 1:
         _CONSOLE.print(
