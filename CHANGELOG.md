@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.5.1] — 2026-06-21
+
+### 🧪 Testes / Tests
+
+- 12 novos testes para `_inspect_one`, `download_batch`, `_write_metadata_json`, `_download_one`
+  — elevou `downloader.py` de 79% para 90%, total de 83% /
+  12 new tests for `_inspect_one`, `download_batch`, `_write_metadata_json`, `_download_one`
+  — raised `downloader.py` from 79% to 90%, overall total to 83%
+
+### Cobertura / Coverage
+
+- **downloader.py**: 90% (↑ from 79%)
+- **Total**: 83% (↑ from 76%)
+- **Tests**: 99 (↑ from 87)
+
+---
+
 ## [v0.5.0] — 2026-06-21
 
 ### 🧪 Testes / Tests
