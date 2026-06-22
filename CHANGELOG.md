@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.5.2] — 2026-06-21
+
+### 🧪 Testes / Tests
+
+- 21 novos testes para `_collect_urls`, `_print_summary`, e handler `download`
+  — elevou `cli.py` de 43% para 93%, total de 92% /
+  21 new tests for `_collect_urls`, `_print_summary`, and `download` handler
+  — raised `cli.py` from 43% to 93%, overall total to 92%
+
+### Cobertura / Coverage
+
+- **cli.py**: 93% (↑ from 43%)
+- **Total**: 92% (↑ from 83%)
+- **Tests**: 120 (↑ from 99)
+
+---
+
 ## [v0.5.1] — 2026-06-21
 
 ### 🧪 Testes / Tests
