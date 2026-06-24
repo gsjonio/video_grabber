@@ -229,6 +229,7 @@ vidgrab --install-completion
 ```
 
 Then:
+
 ```bash
 vidgrab --m[TAB]  # → --max-height
 vidgrab --o[TAB]  # → --output
@@ -241,6 +242,7 @@ vidgrab --o[TAB]  # → --output
 ### 93% Test Coverage
 
 123 unit + integration tests covering:
+
 - URL collection and batch processing
 - Download orchestration
 - Error handling
