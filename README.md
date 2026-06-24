@@ -344,6 +344,14 @@ poetry run pre-commit run --all-files
 pre-commit install
 ```
 
+**Branch Protection:** A branch `main` possui proteção que requer:
+
+- ✅ Todos os commits devem vir através de PR (não push direto)
+- ✅ Testes devem passar (pytest)
+- ✅ Linting deve passar (Ruff, Pylint, Mypy, Markdownlint)
+- ✅ CodeQL security scanning deve passar
+- ✅ Histórico linear (no merge commits — use rebase)
+
 **Release automático:** Tags com formato `v*.*.*` acionam automaticamente:
 
 - ✅ Build e testes
@@ -685,6 +693,14 @@ poetry run pre-commit run --all-files
 # Or let pre-commit run automatically
 pre-commit install
 ```
+
+**Branch Protection:** The `main` branch is protected and requires:
+
+- ✅ All commits must go through PR (no direct push)
+- ✅ Tests must pass (pytest)
+- ✅ Linting must pass (Ruff, Pylint, Mypy, Markdownlint)
+- ✅ CodeQL security scanning must pass
+- ✅ Linear history (no merge commits — use rebase)
 
 **Automatic releases:** Tags matching `v*.*.*` automatically trigger:
 
