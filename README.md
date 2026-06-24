@@ -147,8 +147,8 @@ poetry run vidgrab --help
 
 **Automated installers:**
 
-- **Linux/macOS:** `bash install.sh`
-- **Windows:** `install.bat`
+- **Linux/macOS:** `bash scripts/install.sh`
+- **Windows:** `scripts/install.bat`
 
 These scripts check for Python 3.11+ and ffmpeg, then install via pip.
 
@@ -159,7 +159,7 @@ These scripts check for Python 3.11+ and ffmpeg, then install via pip.
 Se preferir evitar instalar Python e ffmpeg localmente, use o Docker:
 
 ```bash
-# Build da imagem
+# Build da imagem (from root directory)
 docker build -t vidgrab .
 
 # Usar para baixar vídeos
@@ -350,7 +350,7 @@ pre-commit install
 - ✅ Publish no PyPI
 - ✅ GitHub Release com changelog
 
-Veja [CONTRIBUTING.md](CONTRIBUTING.md) para mais detalhes.
+Veja [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) para mais detalhes.
 
 ---
 
@@ -489,8 +489,8 @@ poetry run vidgrab --help
 
 **Automated installers:**
 
-- **Linux/macOS:** `bash install.sh`
-- **Windows:** `install.bat`
+- **Linux/macOS:** `bash scripts/install.sh`
+- **Windows:** `scripts/install.bat`
 
 These scripts check for Python 3.11+ and ffmpeg, then install via pip.
 
@@ -692,4 +692,4 @@ pre-commit install
 - ✅ PyPI publish
 - ✅ GitHub Release with changelog
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for more details.

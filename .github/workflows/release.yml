@@ -51,7 +51,7 @@ jobs:
         id: changelog
         run: |
           version="${GITHUB_REF_NAME}"
-          notes=$(awk "/^## \[${version}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          notes=$(awk "/^## \[${version}\]/{found=1; next} found && /^## \[/{exit} found{print}" docs/CHANGELOG.md)
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$notes" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

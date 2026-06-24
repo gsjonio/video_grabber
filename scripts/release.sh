@@ -18,7 +18,8 @@ echo ""
 # 1. Update version in files
 echo "📝 Updating version in files..."
 sed -i "s/__version__ = .*/\__version__ = \"$VERSION\"/" vidgrab/__init__.py
-sed -i "s/version = .*/version = \"$VERSION\"/" pyproject.toml
+# Update only the [tool.poetry] version line
+sed -i "/^\[tool.poetry\]/,/^version = /{s/^version = .*/version = \"$VERSION\"/}" pyproject.toml
 sed -i "s/badge\/version-[^-]*-/badge\/version-$VERSION-/" README.md
 
 # 2. Run tests
@@ -33,11 +34,11 @@ poetry run mypy vidgrab/ > /dev/null 2>&1 || true
 
 # 4. Generate changelog with git-cliff
 echo "📚 Generating CHANGELOG..."
-poetry run git-cliff --output CHANGELOG.md
+poetry run git-cliff --output docs/CHANGELOG.md || echo "⚠️  Skip changelog generation (git-cliff not available)"
 
 # 5. Commit
 echo "📦 Committing changes..."
-git add vidgrab/__init__.py pyproject.toml README.md CHANGELOG.md
+git add vidgrab/__init__.py pyproject.toml README.md docs/CHANGELOG.md
 git commit -m "chore: bump version to $VERSION"
 
 # 6. Create git tag
