@@ -4,7 +4,7 @@ layout: home
 
 # vidgrab
 
-**Download YouTube videos at maximum quality for video editing**
+Download YouTube videos at maximum quality for video editing.
 
 > Don't re-encode. Download DASH streams separately and mux in copy mode — zero quality loss.
 
