@@ -4,7 +4,7 @@ author: gsjonio
 url: https://gsjonio.github.io/video_grabber
 baseurl: /video_grabber
 
-theme: jekyll-theme-hacker
+theme: jekyll-theme-midnight
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
