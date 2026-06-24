@@ -396,3 +396,40 @@ class TestDownloadHandler:
             )
 
         assert exc_info.value.exit_code == 1
+
+
+class TestMainEntry:
+    """Test main() entry point."""
+
+    @patch("vidgrab.cli.sys.argv", ["vidgrab"])
+    @patch("vidgrab.cli._CONSOLE")
+    def test_friendly_intro_when_no_args(self, mock_console: MagicMock) -> None:
+        """Show friendly intro when run without arguments."""
+        from vidgrab.cli import main
+
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 0
+        mock_console.print.assert_called()
+
+    @patch("vidgrab.cli._CONSOLE")
+    def test_version_callback(self, mock_console: MagicMock) -> None:
+        """Version callback prints and exits."""
+        from vidgrab.cli import _version_callback
+
+        with pytest.raises(typer.Exit):
+            _version_callback(True)
+
+        # Verify version was printed
+        mock_console.print.assert_called_once()
+        call_args = mock_console.print.call_args[0][0]
+        assert "vidgrab" in call_args
+
+    def test_version_callback_no_op(self) -> None:
+        """Version callback does nothing when False."""
+        from vidgrab.cli import _version_callback
+
+        # Should not raise
+        result = _version_callback(False)
+        assert result is None
