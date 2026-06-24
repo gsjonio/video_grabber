@@ -1,0 +1,24 @@
+title: vidgrab
+description: Download YouTube videos at maximum quality for video editing
+author: gsjonio
+url: https://gsjonio.github.io/video_grabber
+baseurl: /video_grabber
+
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+header_pages:
+  - installation.md
+  - usage.md
+  - features.md
+  - contributing.md
+  - changelog.md
+
+exclude:
+  - poetry.lock
+  - pyproject.toml
+  - Makefile
+  - .github
+  - .gitignore
