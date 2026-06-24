@@ -3,8 +3,6 @@ layout: page
 title: Usage
 ---
 
-# Usage Guide
-
 ## Basic Usage
 
 ### Single Video
@@ -26,7 +24,8 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --dry-run
 ```
 
 Output:
-```
+
+```text
 Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)
 2160p (DASH) · 232.5 MB
 ```
@@ -58,6 +57,7 @@ vidgrab --batch urls.txt
 ```
 
 **urls.txt:**
+
 ```text
 # My videos
 https://youtu.be/dQw4w9WgXcQ
@@ -167,13 +167,14 @@ max_height = 1080
 
 All downloads follow this pattern:
 
-```
+```text
 {upload_date}-{title-slug}-{video_id}.{ext}
 ```
 
 **Example:** `20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4`
 
 This ensures:
+
 - ✅ Chronological sorting
 - ✅ Easy to identify videos
 - ✅ Safe filenames (no special chars)
@@ -199,11 +200,13 @@ All downloads are **zero re-encoding** (copy mode).
 For age-gated videos, export cookies from your browser:
 
 ### Firefox
+
 1. Install [Export Cookies](https://addons.mozilla.org/en-US/firefox/addon/export-cookies-txt/) extension
 2. Click extension → Export cookies
 3. Use exported file with `--cookies`
 
 ### Chrome
+
 1. Install [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndcbkpkhkkhkbnkmejlambmlnac) extension
 2. Click extension → Export cookies
 3. Use exported file with `--cookies`
