@@ -5,16 +5,49 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
-  release:
+  build-and-publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    name: Build, Test, and Publish
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - name: Extract changelog for this version
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run pytest -q
+
+      - name: Run linters
+        run: |
+          poetry run ruff check vidgrab/
+          poetry run pylint vidgrab/ || true
+          poetry run mypy vidgrab/ || true
+
+      - name: Build distribution
+        run: poetry build
+
+      - name: Publish to PyPI
+        run: poetry publish
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Extract changelog
         id: changelog
         run: |
           version="${GITHUB_REF_NAME}"
@@ -29,4 +62,5 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
-            --notes "${{ steps.changelog.outputs.notes }}"
+            --notes "${{ steps.changelog.outputs.notes }}" \
+            dist/vidgrab-*.whl dist/vidgrab-*.tar.gz
