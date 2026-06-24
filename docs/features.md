@@ -3,8 +3,6 @@ layout: page
 title: Features
 ---
 
-# Features
-
 ## Core Features
 
 ### ⚡ Parallel Downloads

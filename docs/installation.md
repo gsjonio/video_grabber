@@ -3,8 +3,6 @@ layout: page
 title: Installation
 ---
 
-# Installation Guide
-
 ## Prerequisites
 
 Before installing vidgrab, make sure you have:

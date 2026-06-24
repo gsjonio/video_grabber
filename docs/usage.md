@@ -3,8 +3,6 @@ layout: page
 title: Usage
 ---
 
-# Usage Guide
-
 ## Basic Usage
 
 ### Single Video
