@@ -3,6 +3,8 @@ layout: page
 title: Installation
 ---
 
+# Installation Guide
+
 ## Prerequisites
 
 Before installing vidgrab, make sure you have:
@@ -12,7 +14,6 @@ Before installing vidgrab, make sure you have:
 [Download from python.org](https://www.python.org/downloads/)
 
 Check your version:
-
 ```bash
 python --version
 ```
@@ -29,7 +30,6 @@ winget install ffmpeg
 ```
 
 Or download from [ffmpeg.org](https://ffmpeg.org/download.html)
-
 </details>
 
 <details>
@@ -38,7 +38,6 @@ Or download from [ffmpeg.org](https://ffmpeg.org/download.html)
 ```bash
 brew install ffmpeg
 ```
-
 </details>
 
 <details>
@@ -47,7 +46,6 @@ brew install ffmpeg
 ```bash
 sudo apt install ffmpeg
 ```
-
 </details>
 
 ---
@@ -64,7 +62,6 @@ vidgrab --version
 ```
 
 **Update:**
-
 ```bash
 pip install --upgrade vidgrab
 ```
@@ -103,13 +100,11 @@ poetry run vidgrab --help
 ### 5. Automated Installers
 
 **Linux/macOS:**
-
 ```bash
 bash scripts/install.sh
 ```
 
 **Windows:**
-
 ```bash
 scripts/install.bat
 ```

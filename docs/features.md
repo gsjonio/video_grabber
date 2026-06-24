@@ -3,6 +3,8 @@ layout: page
 title: Features
 ---
 
+# Features
+
 ## Core Features
 
 ### ⚡ Parallel Downloads
@@ -19,7 +21,7 @@ Perfect for batch downloads. Respects rate limits automatically.
 
 Exponential backoff when YouTube rate-limits you:
 
-```text
+```
 Attempt 1 → Wait 1s
 Attempt 2 → Wait 2s
 Attempt 3 → Wait 4s
@@ -61,7 +63,6 @@ vidgrab --batch urls.txt
 ```
 
 To re-download anyway:
-
 ```bash
 vidgrab https://youtu.be/dQw4w9WgXcQ --force
 ```
@@ -75,7 +76,6 @@ vidgrab --batch urls.txt --workers 5
 ```
 
 **urls.txt:**
-
 ```text
 # My videos (comments are ignored)
 https://youtu.be/url1
@@ -104,7 +104,6 @@ vidgrab https://youtu.be/dQw4w9WgXcQ --write-json
 ```
 
 Creates `{filename}.json`:
-
 ```json
 {
   "video_id": "dQw4w9WgXcQ",
@@ -145,22 +144,22 @@ CLI flags always override config.
 
 All files follow the same pattern:
 
-```text
+```
 {upload_date}-{title-slug}-{video_id}.{ext}
 
 Example: 20240315-never-gonna-give-you-up-dQw4w9WgXcQ.mp4
 ```
 
-- ✅ Chronological sorting
-- ✅ Safe filenames
-- ✅ Unique by video ID
-- ✅ Easy to identify
+✅ Chronological sorting  
+✅ Safe filenames  
+✅ Unique by video ID  
+✅ Easy to identify
 
 ### ⚠️ License Warning
 
 vidgrab alerts you when downloading non-Creative Commons videos:
 
-```text
+```
 ⚠️  This video is not under a Creative Commons license.
    Download for personal use only.
 ```
@@ -173,7 +172,7 @@ vidgrab alerts you when downloading non-Creative Commons videos:
 
 vidgrab downloads **DASH streams separately** without re-encoding:
 
-```text
+```
 YouTube →  video stream (H.264 / VP9 / AV1)  ─┐
         →  audio stream (AAC / Opus)           ─┴→  FFmpeg mux (copy mode)
 ```
@@ -230,7 +229,6 @@ vidgrab --install-completion
 ```
 
 Then:
-
 ```bash
 vidgrab --m[TAB]  # → --max-height
 vidgrab --o[TAB]  # → --output
@@ -243,7 +241,6 @@ vidgrab --o[TAB]  # → --output
 ### 93% Test Coverage
 
 123 unit + integration tests covering:
-
 - URL collection and batch processing
 - Download orchestration
 - Error handling
