@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from rich.console import Console
@@ -16,6 +16,10 @@ from .downloader import DownloadConfig, Downloader
 from .exceptions import FfmpegNotFoundError
 from .models import DownloadResult
 
+# --------------------------------------------------------------------------- #
+# App and consoles
+# --------------------------------------------------------------------------- #
+
 app = typer.Typer(
     name="vidgrab",
     help="Download videos at maximum quality for video editing.",
@@ -24,11 +28,32 @@ app = typer.Typer(
 _CONSOLE: Console = Console()
 _ERR_CONSOLE: Console = Console(stderr=True)
 
+_INTRO = """\
+[bold cyan]vidgrab[/bold cyan] — Download videos at maximum quality
+
+[dim]Usage:[/dim]
+  vidgrab <URL>                 Download a single video
+  vidgrab --batch urls.txt      Batch download from file
+  vidgrab --help                Show all options
+  vidgrab --install-completion  Install shell auto-complete
+
+[dim]Examples:[/dim]
+  vidgrab https://youtu.be/dQw4w9WgXcQ
+  vidgrab https://youtu.be/x --dry-run
+  vidgrab https://youtu.be/x --max-height 1080
+
+[bold]>>> Run [cyan]vidgrab --help[/cyan] for all options[/bold]"""
+
 
 def _version_callback(value: bool) -> None:
     if value:
         _CONSOLE.print(f"vidgrab {__version__}")
         raise typer.Exit()
+
+
+# --------------------------------------------------------------------------- #
+# Command
+# --------------------------------------------------------------------------- #
 
 
 @app.command()
@@ -144,20 +169,19 @@ def download(
       vidgrab --batch urls.txt --output ~/Videos/raw  (default: ~/Downloads)
       vidgrab https://youtube.com/playlist?list=PLxxx --playlist
     """
-    file_cfg = _cfg.load()
     all_urls = _collect_urls(urls, batch)
-
-    _default_output = Path(file_cfg.get("output", Path.home() / "Downloads"))
-    config = DownloadConfig(
-        output_dir=output_dir if output_dir is not None else _default_output,
-        max_height=max_height if max_height is not None else file_cfg.get("max_height"),
-        cookies_file=cookies,
+    config = _build_config(
+        file_cfg=_cfg.load(),
+        output_dir=output_dir,
+        max_height=max_height,
+        cookies=cookies,
         force=force,
-        workers=workers if workers != 3 else int(file_cfg.get("workers", 3)),
+        workers=workers,
         write_json=write_json,
         dry_run=dry_run,
         quiet=quiet,
     )
+
     try:
         dl = Downloader(config)
     except FfmpegNotFoundError as exc:
@@ -170,6 +194,39 @@ def download(
     results = dl.download_batch(all_urls)
     if not _print_summary(results, quiet=quiet):
         raise typer.Exit(code=1)
+
+
+# --------------------------------------------------------------------------- #
+# Helpers
+# --------------------------------------------------------------------------- #
+
+
+def _build_config(
+    *,
+    file_cfg: dict[str, Any],
+    output_dir: Path | None,
+    max_height: int | None,
+    cookies: Path | None,
+    force: bool,
+    workers: int,
+    write_json: bool,
+    dry_run: bool,
+    quiet: bool,
+) -> DownloadConfig:
+    """Merge CLI options over config-file values — explicit CLI flags win."""
+    default_output = Path(file_cfg.get("output", Path.home() / "Downloads"))
+    return DownloadConfig(
+        output_dir=output_dir if output_dir is not None else default_output,
+        max_height=max_height if max_height is not None else file_cfg.get("max_height"),
+        cookies_file=cookies,
+        force=force,
+        # ponytail: 3 is the default, so we can't tell an explicit --workers 3
+        # from the default; fall back to the config file only when unchanged.
+        workers=workers if workers != 3 else int(file_cfg.get("workers", 3)),
+        write_json=write_json,
+        dry_run=dry_run,
+        quiet=quiet,
+    )
 
 
 def _collect_urls(positional: list[str] | None, batch_file: Path | None) -> list[str]:
@@ -216,8 +273,8 @@ def _print_summary(results: list[DownloadResult], *, quiet: bool = False) -> boo
     table.add_column("Status", style="bold", width=10)
     table.add_column("Count", justify="right")
     table.add_row("[green]Downloaded[/green]", str(len(success)))
-    table.add_row("[yellow]Skipped[/yellow]",  str(len(skipped)))
-    table.add_row("[red]Failed[/red]",          str(len(failed)))
+    table.add_row("[yellow]Skipped[/yellow]", str(len(skipped)))
+    table.add_row("[red]Failed[/red]", str(len(failed)))
     _CONSOLE.print(table)
 
     if failed:
@@ -230,27 +287,16 @@ def _print_summary(results: list[DownloadResult], *, quiet: bool = False) -> boo
     return not failed
 
 
-def main() -> None:
-    """Package entry point."""
-    # Show friendly intro when run without arguments
-    if len(sys.argv) == 1:
-        _CONSOLE.print(
-            "[bold cyan]vidgrab[/bold cyan] — Download videos at maximum quality\n"
-        )
-        _CONSOLE.print("[dim]Usage:[/dim]")
-        _CONSOLE.print("  vidgrab <URL>              Download a single video")
-        _CONSOLE.print("  vidgrab --batch urls.txt   Batch download from file")
-        _CONSOLE.print("  vidgrab --help             Show all options")
-        _CONSOLE.print("  vidgrab --install-completion  Install shell auto-complete\n")
-        _CONSOLE.print("[dim]Examples:[/dim]")
-        _CONSOLE.print("  vidgrab https://youtu.be/dQw4w9WgXcQ")
-        _CONSOLE.print("  vidgrab https://youtu.be/x --dry-run")
-        _CONSOLE.print("  vidgrab https://youtu.be/x --max-height 1080")
-        _CONSOLE.print(
-            "\n[bold]>>> Run [cyan]vidgrab --help[/cyan] for all options[/bold]"
-        )
-        sys.exit(0)
+# --------------------------------------------------------------------------- #
+# Entry point
+# --------------------------------------------------------------------------- #
 
+
+def main() -> None:
+    """Package entry point: show the intro when run with no args, else run Typer."""
+    if len(sys.argv) == 1:
+        _CONSOLE.print(_INTRO)
+        sys.exit(0)
     app()
 
 
