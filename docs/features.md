@@ -272,6 +272,24 @@ poetry run pytest --cov=vidgrab
 
 ---
 
+## Architecture
+
+The download engine (yt-dlp) is **site-agnostic**. Everything that differs
+between sites lives in a small `Source` strategy (`vidgrab/sources.py`):
+
+- `matches(url)` — does this URL belong to the source?
+- `extract_id(url)` — video ID for skip-existing (None disables it)
+- `canonical_url(entry)` — normalise a playlist entry into a watch URL
+
+Adding a new yt-dlp-supported source is two steps:
+
+1. Implement a class satisfying the `Source` protocol.
+2. Register it in `_SOURCES`.
+
+Unknown URLs fall back to `GenericSource`, which defers entirely to yt-dlp.
+
+---
+
 ## What's NOT Included
 
 vidgrab is **deliberately minimal**:

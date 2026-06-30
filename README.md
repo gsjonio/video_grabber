@@ -324,6 +324,22 @@ tests/
 
 ---
 
+### Arquitetura e novas fontes
+
+O motor de download (yt-dlp) é agnóstico de site. O que muda entre sites fica
+isolado em uma estratégia `Source` ([vidgrab/sources.py](vidgrab/sources.py)),
+responsável por apenas três coisas: reconhecer a URL, extrair o ID do vídeo
+(para pular arquivos já baixados) e normalizar entradas de playlist.
+
+Para adicionar uma nova fonte suportada pelo yt-dlp:
+
+1. Implemente uma classe que satisfaça o protocolo `Source`.
+2. Registre-a em `_SOURCES` em [vidgrab/sources.py](vidgrab/sources.py).
+
+URLs sem fonte dedicada caem na `GenericSource`, que delega tudo ao yt-dlp.
+
+---
+
 ### Contribuição
 
 Contribuições são bem-vindas! Para desenvolver:
@@ -671,6 +687,23 @@ tests/
 ```
 
 </details>
+
+---
+
+### Architecture and new sources
+
+The download engine (yt-dlp) is site-agnostic. Whatever differs between sites is
+isolated in a `Source` strategy ([vidgrab/sources.py](vidgrab/sources.py)),
+responsible for just three things: recognising the URL, extracting the video ID
+(to skip already-downloaded files) and normalising playlist entries.
+
+To add a new yt-dlp-supported source:
+
+1. Implement a class that satisfies the `Source` protocol.
+2. Register it in `_SOURCES` in [vidgrab/sources.py](vidgrab/sources.py).
+
+URLs with no dedicated source fall back to `GenericSource`, which defers
+everything to yt-dlp.
 
 ---
 

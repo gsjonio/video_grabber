@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### ♻️ Refatoração / Refactor
+
+- Extraída a lógica específica de cada site para uma estratégia `Source`
+  (`vidgrab/sources.py`), preparando a base para novas fontes além do YouTube
+  sem mudar o comportamento atual /
+  Extracted site-specific logic into a `Source` strategy
+  (`vidgrab/sources.py`), preparing the base for sources beyond YouTube
+  with no change to current behaviour
+
+### 🐞 Correções / Fixes
+
+- Entradas de playlist de fontes não-YouTube não são mais prefixadas
+  incorretamente com `youtube.com` /
+  Playlist entries from non-YouTube sources are no longer wrongly prefixed
+  with `youtube.com`
+
+---
+
 ## [v0.5.2] — 2026-06-21
 
 ### 🧪 Testes / Tests
