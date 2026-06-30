@@ -1,3 +1,3 @@
-"""vidgrab — YouTube downloader for maximum-quality footage."""
+"""vidgrab — video downloader for maximum-quality footage."""
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"

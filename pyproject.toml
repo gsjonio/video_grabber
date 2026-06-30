@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "vidgrab"
-version = "1.0.2"
-description = "CLI tool to download YouTube videos at maximum quality for video editing"
+version = "1.0.3"
+description = "CLI tool to download videos at maximum quality for video editing"
 authors = ["gsjonio"]
 license = "MIT"
 readme = "README.md"
