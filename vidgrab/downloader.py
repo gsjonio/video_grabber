@@ -36,8 +36,6 @@ from .exceptions import (
 )
 from .models import DownloadResult, VideoMetadata
 
-_CONSOLE: Console = Console(stderr=True)
-
 
 @dataclass(frozen=True)
 class DownloadConfig:
@@ -117,8 +115,6 @@ def _classify_error(msg: str) -> _ErrorKind:
 def _check_ffmpeg() -> None:
     if shutil.which("ffmpeg") is None:
         raise FfmpegNotFoundError()
-
-
 
 
 def _is_creative_commons(info: dict[str, Any]) -> bool:
