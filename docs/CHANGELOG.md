@@ -1,5 +1,23 @@
 # Changelog
 
+## [v1.0.4] — 2026-06-30
+
+### ✨ Funcionalidades / Features
+
+- Nova opção `--update` / `-U` para atualizar o vidgrab para a última versão
+  (executa `pip install --upgrade vidgrab` no ambiente atual) /
+  New `--update` / `-U` option to upgrade vidgrab to the latest version
+  (runs `pip install --upgrade vidgrab` in the current environment)
+
+### ♻️ Refatoração / Refactor
+
+- `cli.py` reorganizado em seções com a precedência de configuração extraída
+  para `_build_config` /
+  `cli.py` reorganised into sections with config precedence extracted into
+  `_build_config`
+
+---
+
 ## [v1.0.3] — 2026-06-30
 
 ### ♻️ Refatoração / Refactor

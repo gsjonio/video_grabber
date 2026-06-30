@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 from typing import Annotated, Any
@@ -35,6 +36,7 @@ _INTRO = """\
   vidgrab <URL>                 Download a single video
   vidgrab --batch urls.txt      Batch download from file
   vidgrab --help                Show all options
+  vidgrab --update              Update to the latest version
   vidgrab --install-completion  Install shell auto-complete
 
 [dim]Examples:[/dim]
@@ -51,13 +53,26 @@ def _version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
+def _update_callback(value: bool) -> None:
+    if not value:
+        return
+    _CONSOLE.print("[cyan]Updating vidgrab to the latest version...[/cyan]")
+    # ponytail: pip works inside both pip and pipx venvs; pipx users may
+    # prefer `pipx upgrade vidgrab` for a fully isolated upgrade.
+    result = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--upgrade", "vidgrab"],
+        check=False,
+    )
+    raise typer.Exit(code=result.returncode)
+
+
 # --------------------------------------------------------------------------- #
 # Command
 # --------------------------------------------------------------------------- #
 
 
 @app.command()
-def download(
+def download(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     urls: Annotated[
         list[str] | None,
         typer.Argument(help="One or more video URLs to download."),
@@ -157,6 +172,16 @@ def download(
             callback=_version_callback,
             is_eager=True,
             help="Show version and exit.",
+        ),
+    ] = None,
+    update: Annotated[
+        bool | None,
+        typer.Option(
+            "--update",
+            "-U",
+            callback=_update_callback,
+            is_eager=True,
+            help="Update vidgrab to the latest version and exit.",
         ),
     ] = None,
 ) -> None:

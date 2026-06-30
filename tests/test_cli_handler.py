@@ -433,3 +433,29 @@ class TestMainEntry:
         # Should not raise
         result = _version_callback(False)
         assert result is None
+
+    @patch("vidgrab.cli._CONSOLE")
+    @patch("vidgrab.cli.subprocess.run")
+    def test_update_callback_runs_pip_upgrade(
+        self, mock_run: MagicMock, _mock_console: MagicMock
+    ) -> None:
+        """Update callback shells out to pip upgrade and exits with its code."""
+        from vidgrab.cli import _update_callback
+
+        mock_run.return_value = MagicMock(returncode=0)
+
+        with pytest.raises(typer.Exit) as exc_info:
+            _update_callback(True)
+
+        assert exc_info.value.exit_code == 0
+        args = mock_run.call_args[0][0]
+        assert args[1:] == ["-m", "pip", "install", "--upgrade", "vidgrab"]
+
+    @patch("vidgrab.cli.subprocess.run")
+    def test_update_callback_no_op(self, mock_run: MagicMock) -> None:
+        """Update callback does nothing when False."""
+        from vidgrab.cli import _update_callback
+
+        result = _update_callback(False)
+        assert result is None
+        mock_run.assert_not_called()

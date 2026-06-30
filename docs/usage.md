@@ -254,6 +254,7 @@ vidgrab --help
 | `--dry-run` | | Preview without downloading |
 | `--quiet` | `-q` | Suppress output (errors only) |
 | `--version` | `-V` | Show version |
+| `--update` | `-U` | Update vidgrab to the latest version |
 | `--install-completion` | | Install shell autocomplete |
 | `--help` | | Show help |
 

@@ -282,6 +282,7 @@ O objetivo é **nunca recodificar** — apenas mesclar os streams.
 | `--dry-run` | | Mostrar o que seria baixado, sem baixar |
 | `--quiet` | `-q` | Suprimir toda saída exceto erros (útil para scripts) |
 | `--version` | `-V` | Exibir versão |
+| `--update` | `-U` | Atualizar o vidgrab para a última versão |
 | `--install-completion` | | Instalar autocomplete no shell atual |
 | `--help` | | Exibir ajuda |
 
@@ -648,6 +649,7 @@ The goal is to **never re-encode** — only mux the streams.
 | `--dry-run` | | Show what would be downloaded without downloading |
 | `--quiet` | `-q` | Suppress all output except errors (useful for scripting) |
 | `--version` | `-V` | Show version and exit |
+| `--update` | `-U` | Update vidgrab to the latest version |
 | `--install-completion` | | Install shell autocomplete for the current shell |
 | `--help` | | Show help |
 
