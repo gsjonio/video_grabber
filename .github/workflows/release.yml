@@ -59,8 +59,11 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pass notes via env (not inline ${{ }}) so backticks/$() in the
+          # changelog are never re-evaluated by the shell.
+          NOTES: ${{ steps.changelog.outputs.notes }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
-            --notes "${{ steps.changelog.outputs.notes }}" \
+            --notes "$NOTES" \
             dist/vidgrab-*.whl dist/vidgrab-*.tar.gz
