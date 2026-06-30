@@ -35,6 +35,7 @@ from .exceptions import (
     VidGrabError,
 )
 from .models import DownloadResult, VideoMetadata
+from .sources import resolve as resolve_source
 
 
 @dataclass(frozen=True)
@@ -61,10 +62,6 @@ class DownloadConfig:
 
 _MAX_RETRY_ATTEMPTS: int = 5
 _RETRY_BASE_DELAY: float = 2.0
-
-_VIDEO_ID_RE: re.Pattern[str] = re.compile(
-    r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})"
-)
 
 
 def _slugify(text: str, max_length: int = 80) -> str:
@@ -215,11 +212,8 @@ class Downloader:
                 expanded.append(url)
                 continue
 
-            for entry in entries:
-                entry_url = entry.get("url") or entry.get("webpage_url", "")
-                if not entry_url.startswith("http"):
-                    entry_url = f"https://www.youtube.com/watch?v={entry_url}"
-                expanded.append(entry_url)
+            source = resolve_source(url)
+            expanded.extend(source.canonical_url(entry) for entry in entries)
 
         return expanded
 
@@ -460,10 +454,9 @@ class Downloader:
         return self._config.output_dir / f"{upload_date}-{title}-{video_id}.{ext}"
 
     def _find_existing(self, url: str) -> Path | None:
-        video_id_match = _VIDEO_ID_RE.search(url)
-        if not video_id_match:
+        video_id = resolve_source(url).extract_id(url)
+        if not video_id:
             return None
-        video_id = video_id_match.group(1)
         matches = [
             p for p in self._config.output_dir.glob(f"*{video_id}*")
             if p.suffix != ".json"
