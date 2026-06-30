@@ -18,7 +18,7 @@ from .models import DownloadResult
 
 app = typer.Typer(
     name="vidgrab",
-    help="Download YouTube videos at maximum quality for video editing.",
+    help="Download videos at maximum quality for video editing.",
     add_completion=True,
 )
 _CONSOLE: Console = Console()
@@ -35,7 +35,7 @@ def _version_callback(value: bool) -> None:
 def download(
     urls: Annotated[
         list[str] | None,
-        typer.Argument(help="One or more YouTube URLs to download."),
+        typer.Argument(help="One or more video URLs to download."),
     ] = None,
     batch: Annotated[
         Path | None,
@@ -135,7 +135,7 @@ def download(
         ),
     ] = None,
 ) -> None:
-    """Download YouTube videos at the highest available quality.
+    """Download videos at the highest available quality.
 
     \b
     Examples:
@@ -235,7 +235,7 @@ def main() -> None:
     # Show friendly intro when run without arguments
     if len(sys.argv) == 1:
         _CONSOLE.print(
-            "[bold cyan]vidgrab[/bold cyan] — Download YouTube videos at maximum quality\n"
+            "[bold cyan]vidgrab[/bold cyan] — Download videos at maximum quality\n"
         )
         _CONSOLE.print("[dim]Usage:[/dim]")
         _CONSOLE.print("  vidgrab <URL>              Download a single video")
